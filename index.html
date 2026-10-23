@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cartelera</title>
+<meta name="description" content="Las series y películas que quiero ver y las que ya vi, con sus plataformas en Chile.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cartelera">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#DFE9FD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13244A" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png?v=1">
+<link rel="icon" type="image/png" href="icon-192.png?v=1">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+/*DS:TOKENS:START*/
+/* ── Domésticas · sistema de diseño común (v1) ──────────────────────────────
+   Paleta: #2950F4 · #4D78F3 · #719DF6 · #99C2F8 · #BDEBFB, con el azul marino #182D4A de fondo oscuro.
+   Estilo iOS 27: tipografía del sistema (SF Pro), tarjetas blancas sobre fondo agrupado,
+   barras y botones de vidrio, cápsulas, esquinas amplias. Igual en todas las apps de la casa. */
+:root {
+  --ds-b1: #2950F4; --ds-b2: #4D78F3; --ds-b3: #719DF6; --ds-b4: #99C2F8; --ds-b5: #BDEBFB; --ds-navy: #182D4A;
+  --ds-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, "Helvetica Neue", Arial, sans-serif;
+  --ds-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", system-ui, "Helvetica Neue", Arial, sans-serif;
+  --ds-font-round: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --ds-font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --ds-r-card: 24px; --ds-r-inner: 16px; --ds-r-field: 14px; --ds-r-sheet: 34px; --ds-r-pill: 999px;
+
+  --ds-bg: #EFF3FB;
+  --ds-bg-top: #DFE9FD;
+  --ds-surface: #FFFFFF;
+  --ds-surface-2: #F3F6FD;
+  --ds-fill: rgba(41, 80, 244, 0.07);
+  --ds-fill-2: rgba(41, 80, 244, 0.13);
+  --ds-ink: #0E1B33;
+  --ds-ink-2: #55617A;
+  --ds-ink-3: #8691A8;
+  --ds-line: rgba(24, 45, 74, 0.12);
+  --ds-line-2: rgba(24, 45, 74, 0.2);
+  --ds-tint: #2950F4;
+  --ds-tint-soft: #E5ECFE;
+  --ds-btn: #2950F4;
+  --ds-on-btn: #FFFFFF;
+  --ds-pos: #157A43; --ds-pos-soft: #DDF4E6;
+  --ds-neg: #D1281C; --ds-neg-soft: #FDE8E6;
+  --ds-warn: #A35500; --ds-warn-soft: #FFF0D9;
+  --ds-hero: radial-gradient(120% 90% at 100% 0%, rgba(189, 235, 251, 0.45) 0%, rgba(189, 235, 251, 0) 55%), linear-gradient(150deg, #4D78F3 0%, #2950F4 58%, #2141D6 100%);
+  --ds-hero-ink: #FFFFFF;
+  --ds-hero-ink-2: rgba(255, 255, 255, 0.84);
+  --ds-hero-line: rgba(255, 255, 255, 0.28);
+  --ds-hero-glass: rgba(255, 255, 255, 0.18);
+  --ds-glass: rgba(255, 255, 255, 0.7);
+  --ds-glass-strong: rgba(255, 255, 255, 0.86);
+  --ds-glass-line: rgba(255, 255, 255, 0.85);
+  --ds-glass-edge: rgba(14, 27, 51, 0.1);
+  --ds-glass-blur: blur(22px) saturate(1.8);
+  --ds-shadow-1: 0 1px 2px rgba(24, 45, 74, 0.05), 0 4px 14px rgba(24, 45, 74, 0.05);
+  --ds-shadow-2: 0 12px 32px rgba(24, 45, 74, 0.16), 0 2px 8px rgba(24, 45, 74, 0.08);
+  --ds-shadow-btn: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 6px 16px rgba(41, 80, 244, 0.26);
+  --ds-scrim: rgba(14, 27, 51, 0.36);
+  --ds-chart-1: #2950F4; --ds-chart-2: #719DF6; --ds-chart-3: #99C2F8; --ds-chart-4: #BDEBFB;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ds-bg: #0A1224;
+    --ds-bg-top: #13244A;
+    --ds-surface: #152340;
+    --ds-surface-2: #1C2C4D;
+    --ds-fill: rgba(113, 157, 246, 0.12);
+    --ds-fill-2: rgba(113, 157, 246, 0.2);
+    --ds-ink: #EEF3FF;
+    --ds-ink-2: #A9B6D0;
+    --ds-ink-3: #77859F;
+    --ds-line: rgba(189, 235, 251, 0.11);
+    --ds-line-2: rgba(189, 235, 251, 0.2);
+    --ds-tint: #8EB0FA;
+    --ds-tint-soft: rgba(113, 157, 246, 0.18);
+    --ds-btn: #3A62F5;
+    --ds-on-btn: #FFFFFF;
+    --ds-pos: #5DD68E; --ds-pos-soft: rgba(93, 214, 142, 0.14);
+    --ds-neg: #FF8A80; --ds-neg-soft: rgba(255, 138, 128, 0.14);
+    --ds-warn: #FFB65C; --ds-warn-soft: rgba(255, 182, 92, 0.14);
+    --ds-hero: radial-gradient(120% 90% at 100% 0%, rgba(189, 235, 251, 0.28) 0%, rgba(189, 235, 251, 0) 55%), linear-gradient(150deg, #3D68F2 0%, #2950F4 55%, #1C38C2 100%);
+    --ds-glass: rgba(24, 40, 70, 0.62);
+    --ds-glass-strong: rgba(24, 40, 70, 0.84);
+    --ds-glass-line: rgba(255, 255, 255, 0.14);
+    --ds-glass-edge: rgba(0, 0, 0, 0.4);
+    --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --ds-shadow-2: 0 14px 36px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    --ds-shadow-btn: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 6px 16px rgba(0, 0, 0, 0.35);
+    --ds-scrim: rgba(0, 0, 0, 0.55);
+    --ds-chart-1: #719DF6; --ds-chart-2: #4D78F3; --ds-chart-3: #99C2F8; --ds-chart-4: #BDEBFB;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ds-bg: #0A1224;
+  --ds-bg-top: #13244A;
+  --ds-surface: #152340;
+  --ds-surface-2: #1C2C4D;
+  --ds-fill: rgba(113, 157, 246, 0.12);
+  --ds-fill-2: rgba(113, 157, 246, 0.2);
+  --ds-ink: #EEF3FF;
+  --ds-ink-2: #A9B6D0;
+  --ds-ink-3: #77859F;
+  --ds-line: rgba(189, 235, 251, 0.11);
+  --ds-line-2: rgba(189, 235, 251, 0.2);
+  --ds-tint: #8EB0FA;
+  --ds-tint-soft: rgba(113, 157, 246, 0.18);
+  --ds-btn: #3A62F5;
+  --ds-on-btn: #FFFFFF;
+  --ds-pos: #5DD68E; --ds-pos-soft: rgba(93, 214, 142, 0.14);
+  --ds-neg: #FF8A80; --ds-neg-soft: rgba(255, 138, 128, 0.14);
+  --ds-warn: #FFB65C; --ds-warn-soft: rgba(255, 182, 92, 0.14);
+  --ds-hero: radial-gradient(120% 90% at 100% 0%, rgba(189, 235, 251, 0.28) 0%, rgba(189, 235, 251, 0) 55%), linear-gradient(150deg, #3D68F2 0%, #2950F4 55%, #1C38C2 100%);
+  --ds-glass: rgba(24, 40, 70, 0.62);
+  --ds-glass-strong: rgba(24, 40, 70, 0.84);
+  --ds-glass-line: rgba(255, 255, 255, 0.14);
+  --ds-glass-edge: rgba(0, 0, 0, 0.4);
+  --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ds-shadow-2: 0 14px 36px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --ds-shadow-btn: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 6px 16px rgba(0, 0, 0, 0.35);
+  --ds-scrim: rgba(0, 0, 0, 0.55);
+  --ds-chart-1: #719DF6; --ds-chart-2: #4D78F3; --ds-chart-3: #99C2F8; --ds-chart-4: #BDEBFB;
+  color-scheme: dark;
+}
+html { background: var(--ds-bg); }
+body {
+  font-family: var(--ds-font);
+  background: linear-gradient(180deg, var(--ds-bg-top) 0, var(--ds-bg) 340px) no-repeat, var(--ds-bg);
+  color: var(--ds-ink);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.012em;
+}
+/* ── fin de los tokens comunes ── */
+
+/* ── Cartelera ───────────────────────────────────────────────────────────────
+   Layout: una columna estilo iOS — título grande con resumen, filtros en cápsulas,
+   listas agrupadas con afiches; barra de pestañas de vidrio abajo y fichas en hoja inferior. */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  --star: #D98A00;
+  --poster-ink: #FFFFFF;
+  --poster-edge: rgba(14, 27, 51, 0.16);
+  --sheet-bg: rgba(244, 247, 254, 0.97);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --star: #FFB65C; --poster-edge: rgba(0, 0, 0, 0.4); --sheet-bg: rgba(19, 32, 60, 0.97); }
+}
+:root[data-theme="dark"] { --star: #FFB65C; --poster-edge: rgba(0, 0, 0, 0.4); --sheet-bg: rgba(19, 32, 60, 0.97); }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  font-size: 17px; line-height: 1.35;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+  -webkit-text-size-adjust: 100%;
+}
+body.locked { position: fixed; left: 0; right: 0; overflow: hidden; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; letter-spacing: inherit; -webkit-appearance: none; appearance: none; }
+a { color: var(--ds-tint); }
+h1, h2, h3, h4, p { margin: 0; }
+button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--ds-tint); outline-offset: 2px; }
+svg.i { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
+
+.glass {
+  background: var(--ds-glass);
+  -webkit-backdrop-filter: var(--ds-glass-blur); backdrop-filter: var(--ds-glass-blur);
+  box-shadow: inset 0 0 0 .5px var(--ds-glass-edge), inset 0 1px 0 var(--ds-glass-line), var(--ds-shadow-2);
+}
+
+/* ── Estructura ── */
+.app { max-width: 640px; margin: 0 auto; padding-block: 6px calc(var(--safe-b) + 112px); }
+.view { display: flex; flex-direction: column; gap: 14px; }
+
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 30px 2px 16px; }
+.head-txt { min-width: 0; }
+.eyebrow { font: 600 13px/1.25 var(--ds-font); color: var(--ds-ink-2); letter-spacing: .03em; text-transform: uppercase; min-height: 16px; }
+h1 { font: 700 34px/1.12 var(--ds-font-display); letter-spacing: -.022em; margin-top: 3px; text-wrap: balance; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--ds-ink); transition: transform .15s ease; }
+.icon-btn:active { transform: scale(.92); }
+.icon-btn svg.i { width: 22px; height: 22px; }
+
+.note { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--ds-r-inner); background: var(--ds-tint-soft); color: var(--ds-ink); font-size: 14px; line-height: 1.4; }
+.note svg.i { width: 20px; height: 20px; color: var(--ds-tint); margin-top: 1px; }
+.note b { font-weight: 600; }
+.note button { color: var(--ds-tint); font-weight: 600; }
+
+/* ── Filtros ── */
+.seg { display: flex; padding: 3px; border-radius: var(--ds-r-pill); background: var(--ds-fill); }
+.seg button { flex: 1; min-height: 34px; padding: 6px 0; font-size: 14px; font-weight: 600; border-radius: var(--ds-r-pill); color: var(--ds-ink-2); transition: background .2s, color .2s; }
+.seg button[aria-pressed="true"] { color: var(--ds-ink); background: var(--ds-surface); box-shadow: 0 3px 10px rgba(14, 27, 51, .1), inset 0 0 0 .5px var(--ds-line); }
+.chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 calc(-1 * var(--gutter-r)) 0 calc(-1 * var(--gutter-l)); padding: 2px var(--gutter-r) 4px var(--gutter-l); scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { display: inline-flex; align-items: center; gap: 7px; flex: none; height: 36px; padding: 0 13px 0 7px; border-radius: var(--ds-r-pill); background: var(--ds-surface); color: var(--ds-ink-2); font-size: 14px; font-weight: 600; white-space: nowrap; box-shadow: var(--ds-shadow-1), inset 0 0 0 .5px var(--ds-line); }
+.chip.plain { padding: 0 15px; }
+.chip .n { font-variant-numeric: tabular-nums; color: var(--ds-ink-3); font-weight: 600; }
+.chip[aria-pressed="true"] { background: var(--ds-btn); color: var(--ds-on-btn); box-shadow: var(--ds-shadow-btn); }
+.chip[aria-pressed="true"] .n { color: var(--ds-on-btn); opacity: .8; }
+
+/* ── Listas ── */
+.list { background: var(--ds-surface); border-radius: var(--ds-r-card); overflow: hidden; box-shadow: var(--ds-shadow-1); }
+.item { display: flex; align-items: center; position: relative; }
+.item + .item::before { content: ""; position: absolute; top: 0; left: 78px; right: 0; height: .5px; background: var(--ds-line-2); }
+.item-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 11px 12px 11px 14px; text-align: left; transition: background .15s; }
+.item-main:active { background: var(--ds-fill); }
+.info { flex: 1; min-width: 0; }
+.title { font-size: 16px; font-weight: 600; line-height: 1.25; letter-spacing: -.02em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sub { font-size: 13px; color: var(--ds-ink-2); margin-top: 3px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-variant-numeric: tabular-nums; }
+.chev { width: 16px; height: 16px; color: var(--ds-ink-3); stroke-width: 2.4; }
+.group-h { font: 600 13px/1.2 var(--ds-font); text-transform: uppercase; letter-spacing: .04em; color: var(--ds-ink-2); padding: 10px 6px 0; }
+.group-h:first-child { padding-top: 0; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 7px; background: var(--ds-fill); color: var(--ds-ink-2); }
+.badge.want { background: var(--ds-tint-soft); color: var(--ds-tint); }
+.badge.seen { background: var(--ds-pos-soft); color: var(--ds-pos); }
+.item-act { width: 40px; height: 40px; margin-right: 12px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--ds-tint-soft); color: var(--ds-tint); transition: transform .15s; }
+.item-act:active { transform: scale(.9); }
+.item-act svg.i { width: 20px; height: 20px; stroke-width: 2.4; }
+.item-act.want { background: var(--ds-btn); color: var(--ds-on-btn); }
+.item-act.want svg.i { fill: currentColor; }
+.item-act.seen { background: var(--ds-pos-soft); color: var(--ds-pos); }
+
+/* Afiches */
+.poster { position: relative; flex: none; overflow: hidden; display: flex; align-items: flex-end; color: var(--poster-ink); box-shadow: 0 1px 3px var(--poster-edge), inset 0 0 0 .5px var(--poster-edge); }
+.poster span { position: relative; font: 700 9px/1.12 var(--ds-font-display); letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; hyphens: auto; }
+.poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.poster.sm { width: 50px; height: 75px; border-radius: 8px; padding: 5px; }
+.poster.lg { width: 112px; height: 168px; border-radius: 14px; padding: 10px; }
+.poster.lg span { font-size: 15px; }
+
+/* Plataformas */
+.provs { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 7px; }
+.provs .none { font-size: 12px; color: var(--ds-ink-3); }
+.provs .more { font-size: 12px; font-weight: 600; color: var(--ds-ink-2); }
+.plogo { position: relative; width: 24px; height: 24px; border-radius: 6px; flex: none; overflow: hidden; display: grid; place-items: center; color: var(--poster-ink); font: 800 9px/1 var(--ds-font-round); letter-spacing: -.02em; box-shadow: inset 0 0 0 .5px var(--ds-line); }
+.plogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.chip .plogo { width: 24px; height: 24px; border-radius: 7px; }
+.stars { display: inline-flex; gap: 1px; color: var(--star); }
+.stars svg.i { width: 12px; height: 12px; fill: currentColor; stroke: none; }
+.stars svg.off { color: var(--ds-line-2); }
+
+/* Buscador */
+.searchbox { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 8px 0 14px; border-radius: var(--ds-r-pill); background: var(--ds-surface); box-shadow: var(--ds-shadow-1), inset 0 0 0 .5px var(--ds-line); }
+.searchbox svg.i { width: 20px; height: 20px; color: var(--ds-ink-2); }
+.searchbox input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ds-ink); font: inherit; font-size: 17px; -webkit-appearance: none; appearance: none; }
+.searchbox input::placeholder { color: var(--ds-ink-3); }
+.searchbox input::-webkit-search-cancel-button { display: none; }
+.searchbox:focus-within { box-shadow: var(--ds-shadow-1), inset 0 0 0 2px var(--ds-tint); }
+.clear { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--ds-ink-3); }
+.clear svg.i { width: 18px; height: 18px; stroke-width: 2.4; }
+
+/* Estados */
+.empty { text-align: center; padding: 40px 22px 34px; background: var(--ds-surface); border-radius: var(--ds-r-card); box-shadow: var(--ds-shadow-1); }
+.empty .ico { width: 56px; height: 56px; border-radius: 18px; margin: 0 auto 14px; display: grid; place-items: center; background: var(--ds-tint-soft); color: var(--ds-tint); }
+.empty .ico svg.i { width: 28px; height: 28px; }
+.empty h3 { font: 700 20px/1.25 var(--ds-font-display); margin-bottom: 6px; text-wrap: balance; }
+.empty p { font-size: 15px; color: var(--ds-ink-2); max-width: 34ch; margin: 0 auto; }
+.empty .btn { margin-top: 18px; }
+.skel-row { display: flex; gap: 14px; align-items: center; padding: 11px 14px; }
+.skel { background: linear-gradient(90deg, var(--ds-fill) 25%, var(--ds-fill-2) 37%, var(--ds-fill) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: 8px; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 20px; border-radius: var(--ds-r-pill); font-size: 16px; font-weight: 600; letter-spacing: -.01em; text-align: center; white-space: nowrap; transition: transform .15s ease, background .2s; }
+.btn:active { transform: scale(.97); }
+.btn svg.i { width: 19px; height: 19px; stroke-width: 2.2; }
+.btn.tint { background: var(--ds-btn); color: var(--ds-on-btn); box-shadow: var(--ds-shadow-btn); }
+.btn.soft { background: var(--ds-tint-soft); color: var(--ds-tint); }
+.btn.gray { background: var(--ds-fill); color: var(--ds-ink); }
+.btn.ok { background: var(--ds-pos-soft); color: var(--ds-pos); }
+.btn.danger { background: var(--ds-neg-soft); color: var(--ds-neg); }
+.btn.small { min-height: 40px; font-size: 15px; padding: 0 16px; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: .5; pointer-events: none; }
+
+/* ── Barra de pestañas ── */
+.bottomfade { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--safe-b) + 100px); z-index: 20; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--ds-bg) 80%); opacity: .85; }
+.tabbar { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; padding: 0 var(--gutter-r) max(calc(var(--safe-b) - 6px), 14px) var(--gutter-l); pointer-events: none; }
+.tabbar-in { max-width: 608px; margin: 0 auto; display: flex; gap: 10px; }
+.tabs { flex: 1; display: flex; height: 62px; padding: 4px; border-radius: var(--ds-r-pill); pointer-events: auto; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: var(--ds-r-pill); color: var(--ds-ink); font-size: 11px; font-weight: 600; transition: background .25s ease, color .25s ease, transform .15s; }
+.tab svg.i { width: 24px; height: 24px; }
+.tab[aria-selected="true"] { color: var(--ds-tint); background: var(--ds-fill); }
+.tab[aria-selected="true"] svg.i { fill: currentColor; fill-opacity: .2; }
+.search-btn { width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--ds-ink); pointer-events: auto; transition: color .25s, transform .15s; }
+.search-btn[aria-selected="true"] { color: var(--ds-tint); }
+.search-btn svg.i { width: 25px; height: 25px; stroke-width: 2.1; }
+.tab:active, .search-btn:active { transform: scale(.94); }
+
+/* ── Hoja inferior ── */
+.sheet-root { position: fixed; inset: 0; z-index: 50; pointer-events: none; }
+.sheet-root.open { pointer-events: auto; }
+.backdrop { position: absolute; inset: 0; background: var(--ds-scrim); opacity: 0; transition: opacity .35s ease; }
+.sheet-root.open .backdrop { opacity: 1; }
+.sheet {
+  position: absolute; left: max(6px, env(safe-area-inset-left, 0px)); right: max(6px, env(safe-area-inset-right, 0px)); bottom: 6px;
+  max-width: 640px; margin: 0 auto; max-height: calc(100% - var(--safe-t) - 16px);
+  display: flex; flex-direction: column; border-radius: var(--ds-r-sheet);
+  background: var(--sheet-bg); -webkit-backdrop-filter: blur(30px) saturate(1.8); backdrop-filter: blur(30px) saturate(1.8);
+  box-shadow: var(--ds-shadow-2), inset 0 0 0 .5px var(--ds-glass-edge), inset 0 1px 0 var(--ds-glass-line);
+  transform: translateY(110%); transition: transform .5s cubic-bezier(.32, .72, 0, 1);
+}
+.sheet-root.open .sheet { transform: translateY(0); }
+.sheet.dragging { transition: none; }
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--ds-line-2); margin: 8px auto 0; flex: none; }
+.sheet-close { position: absolute; top: 14px; right: 14px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--ds-fill); color: var(--ds-ink-2); }
+.sheet-close svg.i { width: 15px; height: 15px; stroke-width: 2.6; }
+.sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 14px 20px calc(var(--safe-b) + 22px); display: flex; flex-direction: column; gap: 22px; }
+
+/* Ficha */
+.d-head { display: flex; gap: 16px; align-items: flex-start; padding-right: 30px; }
+.d-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+.d-title { font: 700 24px/1.15 var(--ds-font-display); letter-spacing: -.02em; text-wrap: balance; }
+.d-orig { font-size: 14px; color: var(--ds-ink-2); font-style: italic; }
+.d-meta { font-size: 14px; color: var(--ds-ink-2); line-height: 1.4; }
+.d-score { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--ds-ink-2); font-variant-numeric: tabular-nums; }
+.d-score svg.i { width: 14px; height: 14px; fill: var(--star); stroke: none; }
+.d-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.d-actions .wide { grid-column: 1 / -1; }
+.d-sec { display: flex; flex-direction: column; gap: 10px; }
+.d-sec h3 { font: 700 19px/1.25 var(--ds-font-display); letter-spacing: -.01em; }
+.d-sec p { font-size: 16px; line-height: 1.5; color: var(--ds-ink); max-width: 65ch; }
+.d-sec p.muted { color: var(--ds-ink-2); font-size: 15px; }
+.pv-group { display: flex; flex-direction: column; gap: 8px; }
+.pv-group h4 { font: 600 12px/1.2 var(--ds-font); text-transform: uppercase; letter-spacing: .05em; color: var(--ds-ink-2); }
+.pv-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.pv { display: inline-flex; align-items: center; gap: 9px; padding: 6px 13px 6px 6px; border-radius: 14px; background: var(--ds-surface); box-shadow: inset 0 0 0 .5px var(--ds-line); font-size: 14px; font-weight: 600; }
+.pv .plogo { width: 30px; height: 30px; border-radius: 8px; font-size: 10px; }
+.d-link { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.d-link svg.i { width: 16px; height: 16px; }
+.seen-box { display: flex; flex-direction: column; gap: 4px; padding: 6px 16px; border-radius: var(--ds-r-inner); background: var(--ds-surface); box-shadow: inset 0 0 0 .5px var(--ds-line); }
+.seen-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+.seen-row + .seen-row { border-top: .5px solid var(--ds-line-2); }
+.seen-row label, .seen-row .lbl { font-size: 16px; }
+.seen-row input[type="date"] { font: inherit; font-size: 16px; color: var(--ds-tint); background: var(--ds-fill); border: 0; border-radius: 10px; padding: 6px 10px; min-height: 36px; -webkit-appearance: none; appearance: none; }
+.rate { display: flex; gap: 2px; }
+.rate button { width: 36px; height: 36px; display: grid; place-items: center; color: var(--ds-line-2); border-radius: 50%; }
+.rate button.on { color: var(--star); }
+.rate svg.i { width: 26px; height: 26px; fill: currentColor; stroke: none; }
+.attr { font-size: 12px; color: var(--ds-ink-3); line-height: 1.45; }
+.attr a { color: var(--ds-ink-2); }
+
+/* Ajustes */
+.s-title { font: 700 26px/1.15 var(--ds-font-display); letter-spacing: -.02em; padding-right: 40px; }
+.s-group { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--ds-r-inner); background: var(--ds-surface); box-shadow: inset 0 0 0 .5px var(--ds-line); }
+.s-group h3 { font: 700 17px/1.25 var(--ds-font-display); }
+.s-group p { font-size: 15px; color: var(--ds-ink-2); line-height: 1.45; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; padding: 4px 10px; border-radius: 8px; align-self: flex-start; }
+.status.ok { background: var(--ds-pos-soft); color: var(--ds-pos); }
+.status.no { background: var(--ds-warn-soft); color: var(--ds-warn); }
+.status svg.i { width: 16px; height: 16px; stroke-width: 2.4; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--ds-ink-2); }
+.field input { width: 100%; min-height: 48px; padding: 0 14px; border-radius: var(--ds-r-field); border: 0; background: var(--ds-fill); color: var(--ds-ink); font: 16px/1.2 var(--ds-font-mono); -webkit-appearance: none; appearance: none; }
+.field input:focus { outline: 2px solid var(--ds-tint); outline-offset: 0; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-row .btn { flex: 1 1 auto; }
+.msg { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.msg.err { color: var(--ds-neg); }
+.msg.ok { color: var(--ds-pos); }
+.how { font-size: 15px; color: var(--ds-ink-2); }
+.how summary { cursor: pointer; color: var(--ds-tint); font-weight: 600; list-style: none; }
+.how summary::-webkit-details-marker { display: none; }
+.how ol { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; line-height: 1.45; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+
+/* Aviso flotante */
+.toast { position: fixed; left: 50%; bottom: calc(var(--safe-b) + 92px); z-index: 60; transform: translate(-50%, 16px); opacity: 0; transition: transform .3s ease, opacity .3s ease; padding: 11px 18px; border-radius: var(--ds-r-pill); font-size: 15px; font-weight: 600; white-space: nowrap; pointer-events: none; color: var(--ds-ink); }
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+.sheet-root.open ~ .toast { bottom: calc(var(--safe-b) + 24px); }
+
+.fade-in { animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: .4; transform: translateY(3px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+  <header class="head">
+    <div class="head-txt">
+      <p class="eyebrow" id="eyebrow">&nbsp;</p>
+      <h1 id="viewTitle">Quiero ver</h1>
+    </div>
+    <button class="icon-btn glass" id="btnSettings" type="button" aria-label="Ajustes">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg>
+    </button>
+  </header>
+
+  <div class="view" id="previewNote" hidden>
+    <div class="note">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></svg>
+      <p><b>Vista previa con títulos de ejemplo.</b> Aquí no se puede consultar TMDB; la búsqueda real y las plataformas en Chile funcionan en la app instalada desde GitHub.</p>
+    </div>
+  </div>
+
+  <section class="view" id="vWant" aria-labelledby="viewTitle"></section>
+  <section class="view" id="vSeen" aria-labelledby="viewTitle" hidden></section>
+  <section class="view" id="vSearch" aria-labelledby="viewTitle" hidden>
+    <form class="searchbox" id="searchForm" role="search">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+      <input id="q" type="search" placeholder="Series y películas" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar series y películas">
+      <button class="clear" id="qClear" type="button" aria-label="Borrar búsqueda" hidden>
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </form>
+    <div id="searchOut" class="view"></div>
+  </section>
+</main>
+
+<div class="bottomfade" aria-hidden="true"></div>
+<nav class="tabbar" aria-label="Secciones">
+  <div class="tabbar-in">
+    <div class="tabs glass" role="tablist">
+      <button class="tab" type="button" role="tab" data-tab="want" aria-selected="true">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 4.5A1.5 1.5 0 0 1 8 3h8a1.5 1.5 0 0 1 1.5 1.5V21L12 17.2 6.5 21z"/></svg>
+        Quiero ver
+      </button>
+      <button class="tab" type="button" role="tab" data-tab="seen" aria-selected="false">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.8 2.8L16.3 9.6"/></svg>
+        Vistos
+      </button>
+    </div>
+    <button class="search-btn glass" type="button" role="tab" data-tab="search" aria-selected="false" aria-label="Buscar">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="sheet-root" id="sheetRoot" aria-hidden="true">
+  <div class="backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Ficha">
+    <div class="grabber" aria-hidden="true"></div>
+    <button class="sheet-close" id="sheetClose" type="button" aria-label="Cerrar">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+<div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+'use strict';
+
+/* ── Configuración ─────────────────────────────────────────────────────────── */
+const PREVIEW = window.CARTELERA_PREVIEW === true || /[?&]demo\b/.test(location.search);
+const STORE = PREVIEW ? 'cartelera.demo.v1' : 'cartelera.v1';
+const REGION = 'CL';                 // plataformas disponibles en Chile
+const LANG = 'es-MX';                // títulos y sinopsis en español latino
+const API = 'https://api.themoviedb.org/3';
+const IMG = 'https://image.tmdb.org/t/p/';
+const PROV_TTL = 3 * 864e5;          // revisar plataformas de "Quiero ver" cada 3 días
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const pad = n => String(n).padStart(2, '0');
+const isoDay = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = () => isoDay(new Date());
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
+const keyOf = it => it.type + ':' + it.id;
+const fail = (code, message) => Object.assign(new Error(message), { code });
+
+/* ── Iconos ── */
+const SVG = (d, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const IC = {
+  bookmark: '<path d="M6.5 4.5A1.5 1.5 0 0 1 8 3h8a1.5 1.5 0 0 1 1.5 1.5V21L12 17.2 6.5 21z"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.8 2.8L16.3 9.6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  chev: '<path d="m9 6 6 6-6 6"/>',
+  star: '<path d="M12 3.4l2.65 5.37 5.93.86-4.29 4.18 1.01 5.9L12 16.92l-5.3 2.79 1.01-5.9-4.29-4.18 5.93-.86z"/>',
+  ext: '<path d="M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4"/>',
+  film: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M7.5 5v14M16.5 5v14M3 9.7h4.5M3 14.3h4.5M16.5 9.7H21M16.5 14.3H21"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/>',
+  key: '<circle cx="8" cy="15.5" r="4"/><path d="m11 12.5 8.5-8.5M16.5 7l2.5 2.5M14 9.5l2 2"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  share: '<path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  inbox: '<path d="M12 3v11M7.5 9.5 12 14l4.5-4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  warn: '<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.2"/>',
+  retry: '<path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/>',
+};
+
+/* ── Datos guardados ───────────────────────────────────────────────────────── */
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (s && typeof s === 'object' && s.items) return Object.assign(blank(), s);
+  } catch (e) { /* sin almacenamiento: seguimos en memoria */ }
+  return PREVIEW ? demoState() : blank();
+}
+function blank() { return { v: 1, items: {}, key: '', tab: 'want' }; }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* nada */ } }
+
+/* ── Plataformas ── */
+const PNAMES = {
+  'Disney Plus': 'Disney+', 'Apple TV Plus': 'Apple TV+', 'Amazon Prime Video': 'Prime Video',
+  'Google Play Movies': 'Google Play', 'Max': 'HBO Max', 'Paramount Plus': 'Paramount+',
+  'Paramount Plus Premium': 'Paramount+', 'Netflix Kids': 'Netflix', 'Crunchyroll Premium': 'Crunchyroll',
+};
+const PINIT = { 'Netflix': 'N', 'Disney+': 'D+', 'Apple TV+': 'tv+', 'HBO Max': 'HBO', 'Prime Video': 'pv', 'Apple TV': 'tv', 'Google Play': 'GP', 'MUBI': 'M', 'Paramount+': 'P+' };
+const pname = n => { const c = String(n || '').replace(/\s+(standard|basic)?\s*with ads$/i, '').trim(); return PNAMES[c] || c; };
+const pinit = n => PINIT[n] || n.split(/\s+/).map(w => w[0] || '').join('').slice(0, 3);
+const TILE = [['#2950F4', '#182D4A'], ['#4D78F3', '#13244A'], ['#719DF6', '#2141D6'], ['#182D4A', '#0A1224'], ['#2141D6', '#4D78F3'], ['#3A62F5', '#0E1B33']];
+const hash = s => { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const tileBg = s => { const [a, b] = TILE[hash(s) % TILE.length]; return `background:linear-gradient(150deg,${a},${b})`; };
+
+function cleanList(list) {
+  const seen = new Set(), out = [];
+  for (const p of (list || []).slice().sort((a, b) => (a.display_priority ?? 99) - (b.display_priority ?? 99))) {
+    const n = pname(p.provider_name);
+    if (!n || seen.has(n)) continue;
+    seen.add(n); out.push({ n, l: p.logo_path || '' });
+  }
+  return out;
+}
+function parseProv(wp) {
+  const cl = wp && wp.results && wp.results[REGION];
+  if (!cl) return { stream: [], free: [], rent: [], buy: [], link: '' };
+  return { stream: cleanList(cl.flatrate), free: cleanList([...(cl.free || []), ...(cl.ads || [])]), rent: cleanList(cl.rent), buy: cleanList(cl.buy), link: cl.link || '' };
+}
+function streamOf(it) {
+  const p = it.prov; if (!p) return [];
+  const seen = new Set(), out = [];
+  for (const x of [...(p.stream || []), ...(p.free || [])]) if (!seen.has(x.n)) { seen.add(x.n); out.push(x); }
+  return out;
+}
+const logoHTML = p => `<span class="plogo" style="${tileBg(p.n)}" title="${esc(p.n)}">${esc(pinit(p.n))}${p.l && !PREVIEW ? `<img src="${IMG}w92${esc(p.l)}" alt="" loading="lazy">` : ''}</span>`;
+
+/* ── TMDB ──────────────────────────────────────────────────────────────────── */
+async function tmdb(path, params = {}, signal) {
+  const key = (state.key || '').trim();
+  if (!key) throw fail('nokey', 'Falta conectar TMDB en Ajustes.');
+  const url = new URL(API + path);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const headers = { accept: 'application/json' };
+  if (key.length > 40) headers.Authorization = 'Bearer ' + key; else url.searchParams.set('api_key', key);
+  let res;
+  try { res = await fetch(url, { headers, signal }); }
+  catch (e) {
+    if (e.name === 'AbortError') throw e;
+    throw fail('net', 'No hay conexión con TMDB. Revisa tu internet e inténtalo de nuevo.');
+  }
+  if (res.status === 401) throw fail('auth', 'TMDB no aceptó la clave. Revísala en Ajustes.');
+  if (res.status === 404) throw fail('404', 'TMDB no tiene este título.');
+  if (!res.ok) throw fail('http', `TMDB respondió con un error (${res.status}). Inténtalo en un momento.`);
+  return res.json();
+}
+function norm(r, type) {
+  type = type || r.media_type;
+  const tv = type === 'tv';
+  return {
+    id: r.id, type,
+    title: (tv ? r.name || r.original_name : r.title || r.original_title) || 'Sin título',
+    orig: (tv ? r.original_name : r.original_title) || '',
+    year: String((tv ? r.first_air_date : r.release_date) || '').slice(0, 4),
+    poster: r.poster_path || '',
+  };
+}
+const fmtRuntime = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`;
+const TV_STATUS = { 'Returning Series': 'En emisión', 'Ended': 'Finalizada', 'Canceled': 'Cancelada', 'In Production': 'En producción', 'Planned': 'Anunciada', 'Pilot': 'Piloto' };
+
+const detailCache = new Map();
+async function getDetails(type, id) {
+  const k = type + ':' + id;
+  if (detailCache.has(k)) return detailCache.get(k);
+  let d;
+  if (PREVIEW) {
+    await sleep(260);
+    d = DEMO.find(x => keyOf(x) === k);
+    if (!d) throw fail('404', 'No se encontró el título.');
+  } else {
+    const r = await tmdb(`/${type}/${id}`, { language: LANG, append_to_response: 'watch/providers' });
+    let overview = r.overview || '';
+    if (!overview) { try { overview = (await tmdb(`/${type}/${id}`, { language: 'en-US' })).overview || ''; } catch (e) { /* sin sinopsis */ } }
+    const extra = [];
+    if (type === 'movie' && r.runtime) extra.push(fmtRuntime(r.runtime));
+    if (type === 'tv') {
+      const n = r.number_of_seasons;
+      if (n) extra.push(`${n} ${n === 1 ? 'temporada' : 'temporadas'}`);
+      if (TV_STATUS[r.status]) extra.push(TV_STATUS[r.status]);
+    }
+    d = { ...norm(r, type), overview, genres: (r.genres || []).slice(0, 3).map(g => g.name).join(', '), extra: extra.join(' · '), vote: r.vote_count > 20 ? r.vote_average : 0, prov: parseProv(r['watch/providers']) };
+  }
+  detailCache.set(k, d);
+  const it = state.items[k];
+  if (it) { Object.assign(it, { title: d.title, year: d.year, poster: d.poster || it.poster, prov: d.prov, provAt: Date.now() }); save(); renderView(); }
+  return d;
+}
+
+let refreshing = false;
+async function refreshProviders() {
+  if (PREVIEW || !state.key || refreshing || !navigator.onLine) return;
+  refreshing = true;
+  const due = Object.values(state.items).filter(it => it.status === 'want' && (!it.provAt || Date.now() - it.provAt > PROV_TTL))
+    .sort((a, b) => (a.provAt || 0) - (b.provAt || 0)).slice(0, 25);
+  let changed = 0;
+  for (const it of due) {
+    try {
+      const wp = await tmdb(`/${it.type}/${it.id}/watch/providers`);
+      it.prov = parseProv(wp); it.provAt = Date.now(); changed++;
+    } catch (e) { if (e.code === 'auth' || e.code === 'net' || e.code === 'nokey') break; it.provAt = Date.now(); }
+    if (changed % 5 === 0) { save(); if (state.tab === 'want') renderWant(); }
+    await sleep(180);
+  }
+  save(); if (state.tab === 'want') renderWant();
+  refreshing = false;
+}
+
+/* ── Piezas de interfaz ────────────────────────────────────────────────────── */
+function posterHTML(it, size) {
+  const w = size === 'lg' ? 'w342' : 'w185';
+  const img = it.poster && !PREVIEW ? `<img src="${IMG}${w}${esc(it.poster)}" alt="" loading="lazy">` : '';
+  return `<div class="poster ${size}" style="${tileBg(it.title)}" aria-hidden="true"><span>${esc(it.title)}</span>${img}</div>`;
+}
+const typeLbl = t => t === 'tv' ? 'Serie' : 'Película';
+const starsHTML = n => n ? `<span class="stars" aria-label="${n} de 5">${[1, 2, 3, 4, 5].map(i => SVG(IC.star, i <= n ? 'i' : 'i off')).join('')}</span>` : '';
+function fmtDay(s, opts = { day: 'numeric', month: 'short', year: 'numeric' }) {
+  if (!s) return '';
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('es-CL', opts).replace('.', '');
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function provLine(it) {
+  if (!it.prov) return `<div class="provs"><span class="none">${state.key || PREVIEW ? 'Buscando plataformas…' : 'Plataformas sin revisar'}</span></div>`;
+  const st = streamOf(it);
+  if (st.length) {
+    const shown = st.slice(0, 5);
+    return `<div class="provs">${shown.map(logoHTML).join('')}${st.length > 5 ? `<span class="more">+${st.length - 5}</span>` : ''}</div>`;
+  }
+  const rb = (it.prov.rent || []).length || (it.prov.buy || []).length;
+  return `<div class="provs"><span class="none">${rb ? 'Solo arriendo o compra' : 'Sin plataformas en Chile'}</span></div>`;
+}
+
+function rowHTML(it, mode) {
+  const k = keyOf(it);
+  let sub = `<span>${esc([it.year, typeLbl(it.type)].filter(Boolean).join(' · '))}</span>`;
+  let extra = '';
+  if (mode === 'want') extra = provLine(it);
+  if (mode === 'seen') sub = `<span>${esc(typeLbl(it.type))} · ${esc(fmtDay(it.seenAt, { day: 'numeric', month: 'short' }))}</span>${starsHTML(it.rating)}`;
+  let act = '';
+  if (mode === 'search') {
+    const st = state.items[k] && state.items[k].status;
+    if (st === 'want') act = `<button class="item-act want" type="button" data-open="${k}" aria-label="Ya está en Quiero ver">${SVG(IC.bookmark)}</button>`;
+    else if (st === 'seen') act = `<button class="item-act seen" type="button" data-open="${k}" aria-label="Ya la viste">${SVG(IC.check)}</button>`;
+    else act = `<button class="item-act" type="button" data-add="${k}" aria-label="Agregar ${esc(it.title)} a Quiero ver">${SVG(IC.plus)}</button>`;
+  }
+  return `<div class="item"><button class="item-main" type="button" data-open="${k}">${posterHTML(it, 'sm')}<div class="info"><div class="title">${esc(it.title)}</div><div class="sub">${sub}</div>${extra}</div>${mode === 'search' ? '' : SVG(IC.chev, 'i chev')}</button>${act}</div>`;
+}
+function emptyHTML(icon, title, text, btn) {
+  return `<div class="empty fade-in"><div class="ico">${SVG(icon)}</div><h3>${esc(title)}</h3><p>${esc(text)}</p>${btn || ''}</div>`;
+}
+function onboardHTML() {
+  return emptyHTML(IC.key, 'Conecta TMDB para buscar',
+    'La búsqueda y las plataformas de Chile vienen de The Movie Database. Crea una clave gratis y pégala en Ajustes una sola vez.',
+    `<button class="btn tint" type="button" data-act="settings">${SVG(IC.key)}Abrir Ajustes</button>`);
+}
+function segHTML(name, value) {
+  const opts = [['all', 'Todo'], ['movie', 'Películas'], ['tv', 'Series']];
+  return `<div class="seg" role="group" aria-label="Tipo">${opts.map(([v, l]) => `<button type="button" data-seg="${name}" data-val="${v}" aria-pressed="${value === v}">${l}</button>`).join('')}</div>`;
+}
+const items = status => Object.values(state.items).filter(it => it.status === status);
+const ui = { wantType: 'all', wantProv: '', seenType: 'all' };
+
+/* ── Vistas ── */
+const TITLES = { want: 'Quiero ver', seen: 'Vistos', search: 'Buscar' };
+function setTab(tab, focus) {
+  if (!TITLES[tab]) tab = 'want';
+  state.tab = tab; save();
+  $('#viewTitle').textContent = TITLES[tab];
+  document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  $('#vWant').hidden = tab !== 'want';
+  $('#vSeen').hidden = tab !== 'seen';
+  $('#vSearch').hidden = tab !== 'search';
+  renderView();
+  if (tab === 'search' && focus) $('#q').focus();
+  window.scrollTo(0, 0);
+}
+function renderView() {
+  if (state.tab === 'want') renderWant();
+  else if (state.tab === 'seen') renderSeen();
+  else renderSearch();
+}
+
+function renderWant() {
+  const all = items('want').sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+  const avail = all.filter(it => streamOf(it).length).length;
+  $('#eyebrow').textContent = all.length ? `${all.length} ${all.length === 1 ? 'título' : 'títulos'} · ${avail} en plataformas` : 'Tu lista';
+  const el = $('#vWant');
+  if (!all.length) {
+    el.innerHTML = !PREVIEW && !state.key ? onboardHTML()
+      : emptyHTML(IC.bookmark, 'Tu lista está vacía', 'Busca una serie o película y agrégala para tenerla a mano.', `<button class="btn tint" type="button" data-tab="search" data-focus="1">${SVG(IC.search)}Buscar</button>`);
+    return;
+  }
+  const byType = ui.wantType === 'all' ? all : all.filter(it => it.type === ui.wantType);
+  const counts = new Map();
+  for (const it of byType) for (const p of streamOf(it)) { const c = counts.get(p.n) || { p, c: 0 }; c.c++; counts.set(p.n, c); }
+  const provs = [...counts.values()].sort((a, b) => b.c - a.c || a.p.n.localeCompare(b.p.n));
+  if (ui.wantProv && !counts.has(ui.wantProv)) ui.wantProv = '';
+  const list = ui.wantProv ? byType.filter(it => streamOf(it).some(p => p.n === ui.wantProv)) : byType;
+  let html = segHTML('wantType', ui.wantType);
+  if (provs.length) {
+    html += `<div class="chips" role="group" aria-label="Plataforma"><button class="chip plain" type="button" data-prov="" aria-pressed="${!ui.wantProv}">Todas</button>${provs.map(({ p, c }) => `<button class="chip" type="button" data-prov="${esc(p.n)}" aria-pressed="${ui.wantProv === p.n}">${logoHTML(p)}${esc(p.n)} <span class="n">${c}</span></button>`).join('')}</div>`;
+  }
+  if (!PREVIEW && !state.key) html += `<div class="note">${SVG(IC.key)}<p>Conecta TMDB para mantener al día las plataformas. <button type="button" data-act="settings">Abrir Ajustes</button></p></div>`;
+  html += list.length ? `<div class="list">${list.map(it => rowHTML(it, 'want')).join('')}</div>`
+    : emptyHTML(IC.film, 'Nada por aquí', ui.wantProv ? `Ningún título de este filtro está en ${ui.wantProv}.` : 'No hay títulos de este tipo en tu lista.');
+  el.innerHTML = html;
+}
+
+function renderSeen() {
+  const all = items('seen').sort((a, b) => (b.seenAt || '').localeCompare(a.seenAt || '') || (b.addedAt || 0) - (a.addedAt || 0));
+  const y = String(new Date().getFullYear());
+  const thisYear = all.filter(it => (it.seenAt || '').startsWith(y)).length;
+  $('#eyebrow').textContent = all.length ? `${all.length} ${all.length === 1 ? 'título' : 'títulos'} · ${thisYear} en ${y}` : 'Tu registro';
+  const el = $('#vSeen');
+  if (!all.length) {
+    el.innerHTML = emptyHTML(IC.checkCircle, 'Aún no marcas nada como visto', 'Cuando termines una serie o película, márcala como vista desde su ficha y quedará registrada aquí.');
+    return;
+  }
+  const list = ui.seenType === 'all' ? all : all.filter(it => it.type === ui.seenType);
+  let html = segHTML('seenType', ui.seenType);
+  if (!list.length) { el.innerHTML = html + emptyHTML(IC.film, 'Nada por aquí', 'No hay títulos de este tipo en tu registro.'); return; }
+  const groups = [];
+  for (const it of list) {
+    const label = it.seenAt ? cap(fmtDay(it.seenAt.slice(0, 7) + '-01', { month: 'long', year: 'numeric' })) : 'Sin fecha';
+    const g = groups[groups.length - 1];
+    if (g && g.label === label) g.items.push(it); else groups.push({ label, items: [it] });
+  }
+  html += groups.map(g => `<h2 class="group-h">${esc(g.label)}</h2><div class="list">${g.items.map(it => rowHTML(it, 'seen')).join('')}</div>`).join('');
+  el.innerHTML = html;
+}
+
+/* ── Búsqueda ── */
+const search = { q: '', results: null, error: null, loading: false, trending: null, trendErr: null, ctrl: null, timer: 0 };
+const resultCache = new Map();
+function remember(list) { for (const r of list) resultCache.set(keyOf(r), r); return list; }
+
+function renderSearch() {
+  const n = Object.keys(state.items).length;
+  $('#eyebrow').textContent = n ? `${n} ${n === 1 ? 'título' : 'títulos'} en tus listas` : 'Series y películas';
+  const out = $('#searchOut');
+  $('#qClear').hidden = !search.q;
+  if (!PREVIEW && !state.key) { out.innerHTML = onboardHTML(); return; }
+  if (search.q) {
+    if (search.loading && !search.results) { out.innerHTML = skelHTML(5); return; }
+    if (search.error) { out.innerHTML = errorHTML(search.error); return; }
+    if (search.results && !search.results.length) { out.innerHTML = emptyHTML(IC.search, `Sin resultados para “${search.q}”`, 'Prueba con el título original o revisa cómo está escrito.'); return; }
+    if (search.results) out.innerHTML = `<div class="list fade-in">${search.results.map(r => rowHTML(r, 'search')).join('')}</div>`;
+    return;
+  }
+  if (search.trendErr) { out.innerHTML = errorHTML(search.trendErr); return; }
+  if (!search.trending) { out.innerHTML = `<h2 class="group-h">Populares esta semana</h2>${skelHTML(6)}`; loadTrending(); return; }
+  out.innerHTML = `<h2 class="group-h">${PREVIEW ? 'Títulos de ejemplo' : 'Populares esta semana'}</h2><div class="list">${search.trending.map(r => rowHTML(r, 'search')).join('')}</div>`;
+}
+const skelHTML = n => `<div class="list" aria-hidden="true">${Array.from({ length: n }, () => '<div class="skel-row"><div class="skel" style="width:50px;height:75px"></div><div style="flex:1;display:grid;gap:8px"><div class="skel" style="height:14px;width:70%"></div><div class="skel" style="height:11px;width:38%"></div></div></div>').join('')}</div>`;
+const errorHTML = e => emptyHTML(IC.warn, 'No se pudo cargar', e.message || 'Inténtalo de nuevo en un momento.',
+  e.code === 'auth' || e.code === 'nokey' ? `<button class="btn tint" type="button" data-act="settings">${SVG(IC.key)}Revisar clave</button>` : `<button class="btn soft" type="button" data-act="retry">${SVG(IC.retry)}Reintentar</button>`);
+
+async function loadTrending() {
+  if (search.trendLoading) return;
+  search.trendLoading = true;
+  try {
+    if (PREVIEW) { await sleep(200); search.trending = remember(DEMO.map(d => ({ ...d }))); }
+    else {
+      const r = await tmdb('/trending/all/week', { language: LANG });
+      search.trending = remember((r.results || []).filter(x => x.media_type === 'movie' || x.media_type === 'tv').slice(0, 15).map(x => norm(x)));
+    }
+    search.trendErr = null;
+  } catch (e) { search.trendErr = e; }
+  search.trendLoading = false;
+  if (state.tab === 'search' && !search.q) renderSearch();
+}
+const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+async function runSearch(q) {
+  if (search.ctrl) search.ctrl.abort();
+  const ctrl = search.ctrl = new AbortController();
+  search.loading = true; search.error = null;
+  if (state.tab === 'search') renderSearch();
+  try {
+    let list;
+    if (PREVIEW) { await sleep(220); const f = fold(q); list = DEMO.filter(d => fold(d.title).includes(f) || fold(d.orig).includes(f)).map(d => ({ ...d })); }
+    else {
+      const r = await tmdb('/search/multi', { query: q, language: LANG, include_adult: 'false', page: '1' }, ctrl.signal);
+      list = (r.results || []).filter(x => x.media_type === 'movie' || x.media_type === 'tv').map(x => norm(x));
+    }
+    if (ctrl !== search.ctrl || q !== search.q) return;
+    search.results = remember(list);
+  } catch (e) {
+    if (e.name === 'AbortError' || ctrl !== search.ctrl) return;
+    search.error = e;
+  }
+  search.loading = false;
+  if (state.tab === 'search') renderSearch();
+}
+function onQuery() {
+  const q = $('#q').value.trim();
+  clearTimeout(search.timer);
+  if (q === search.q) return;
+  search.q = q; search.results = null; search.error = null;
+  if (!q) { if (search.ctrl) search.ctrl.abort(); search.loading = false; renderSearch(); return; }
+  if (!PREVIEW && !state.key) { renderSearch(); return; }
+  renderSearch();
+  search.timer = setTimeout(() => runSearch(q), 350);
+}
+
+/* ── Acciones sobre la lista ───────────────────────────────────────────────── */
+function baseOf(k) { return state.items[k] || resultCache.get(k) || detailCache.get(k) || null; }
+function ensureItem(k) {
+  if (state.items[k]) return state.items[k];
+  const b = baseOf(k); if (!b) return null;
+  const d = detailCache.get(k);
+  const it = { id: b.id, type: b.type, title: b.title, year: b.year, poster: b.poster, addedAt: Date.now(), prov: d ? d.prov : (b.prov || null), provAt: d || b.prov ? Date.now() : 0 };
+  state.items[k] = it;
+  return it;
+}
+async function fillProviders(it) {
+  if (it.prov || PREVIEW) return;
+  try { it.prov = parseProv(await tmdb(`/${it.type}/${it.id}/watch/providers`)); it.provAt = Date.now(); save(); renderView(); }
+  catch (e) { /* se reintenta al abrir la app */ }
+}
+function addWant(k, quiet) {
+  const it = ensureItem(k); if (!it) return;
+  it.status = 'want'; it.addedAt = Date.now(); delete it.seenAt;
+  save(); renderView(); if (!quiet) toast('Agregada a Quiero ver');
+  fillProviders(it);
+}
+function markSeen(k) {
+  const it = ensureItem(k); if (!it) return;
+  it.status = 'seen'; it.seenAt = today();
+  save(); renderView(); toast('Marcada como vista');
+}
+function removeItem(k) {
+  const it = state.items[k]; if (!it) return;
+  const was = it.status;
+  delete state.items[k];
+  save(); renderView(); toast(was === 'seen' ? 'Quitada de Vistos' : 'Quitada de Quiero ver');
+}
+
+/* ── Ficha ─────────────────────────────────────────────────────────────────── */
+let current = null; // { k, d, err, confirm }
+function openDetail(k) {
+  const base = baseOf(k); if (!base) return;
+  current = { k, d: detailCache.get(k) || null, err: null, confirm: false };
+  openSheet(detailHTML(), 'Ficha de ' + base.title);
+  if (!current.d) loadDetail(k);
+}
+async function loadDetail(k) {
+  const [type, id] = k.split(':');
+  try { const d = await getDetails(type, Number(id)); if (current && current.k === k) { current.d = d; current.err = null; paintDetail(); } }
+  catch (e) { if (current && current.k === k) { current.err = e; paintDetail(); } }
+}
+function paintDetail() { if (current) { const b = $('#sheetBody'), top = b.scrollTop; b.innerHTML = detailHTML(); b.scrollTop = top; } }
+
+function detailHTML() {
+  const { k, d, err } = current;
+  const base = d || baseOf(k) || {};
+  const it = state.items[k];
+  const status = it && it.status;
+  const meta = [base.year, typeLbl(base.type)].filter(Boolean).join(' · ');
+  let html = `<div class="d-head">${posterHTML(base, 'lg')}<div class="d-info"><p class="eyebrow">${esc(meta)}</p><h2 class="d-title">${esc(base.title)}</h2>`;
+  if (d && d.orig && fold(d.orig) !== fold(d.title)) html += `<p class="d-orig">${esc(d.orig)}</p>`;
+  if (d && (d.extra || d.genres)) html += `<p class="d-meta">${esc([d.extra, d.genres].filter(Boolean).join(' · '))}</p>`;
+  if (d && d.vote) html += `<p class="d-score">${SVG(IC.star)}${d.vote.toFixed(1).replace('.', ',')} en TMDB</p>`;
+  html += `</div></div>`;
+
+  // Acciones
+  const conf = current.confirm;
+  if (!status) {
+    html += `<div class="d-actions"><button class="btn tint" type="button" data-act="want">${SVG(IC.bookmark)}Quiero ver</button><button class="btn soft" type="button" data-act="seen">${SVG(IC.check)}Ya la vi</button></div>`;
+  } else if (status === 'want') {
+    html += `<div class="d-actions"><button class="btn tint wide" type="button" data-act="seen">${SVG(IC.check)}Marcar como vista</button>
+      <button class="btn ${conf ? 'danger' : 'gray'} wide" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Toca de nuevo para quitarla' : 'Quitar de Quiero ver'}</button></div>`;
+  } else {
+    html += `<div class="seen-box"><div class="seen-row"><label for="seenDate">Vista el</label><input type="date" id="seenDate" value="${esc(it.seenAt || '')}" max="${today()}"></div>
+      <div class="seen-row"><span class="lbl" id="rateLbl">Tu nota</span><div class="rate" role="group" aria-labelledby="rateLbl">${[1, 2, 3, 4, 5].map(i => `<button type="button" class="${i <= (it.rating || 0) ? 'on' : ''}" data-star="${i}" aria-label="${i} de 5" aria-pressed="${i === it.rating}">${SVG(IC.star)}</button>`).join('')}</div></div></div>
+      <div class="d-actions"><button class="btn soft" type="button" data-act="rewant">${SVG(IC.undo)}Volver a ver</button><button class="btn ${conf ? 'danger' : 'gray'}" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Confirmar' : 'Quitar'}</button></div>`;
+  }
+
+  // Plataformas
+  html += `<section class="d-sec"><h3>Dónde ver en Chile</h3>`;
+  if (err) html += `<p class="muted">${esc(err.message)}</p><div><button class="btn soft small" type="button" data-act="reload">${SVG(IC.retry)}Reintentar</button></div>`;
+  else if (!d) html += `<div class="pv-list" aria-hidden="true"><div class="skel" style="width:128px;height:42px;border-radius:14px"></div><div class="skel" style="width:104px;height:42px;border-radius:14px"></div></div>`;
+  else {
+    const p = d.prov || {};
+    const groups = [['Incluida en suscripción', p.stream], ['Gratis', p.free], ['Arriendo', p.rent], ['Compra', p.buy]].filter(([, l]) => l && l.length);
+    if (!groups.length) html += `<p class="muted">Por ahora no está en plataformas de streaming en Chile.</p>`;
+    else html += groups.map(([h, l]) => `<div class="pv-group"><h4>${h}</h4><div class="pv-list">${l.map(x => `<span class="pv">${logoHTML(x)}${esc(x.n)}</span>`).join('')}</div></div>`).join('');
+    if (p.link && !PREVIEW) html += `<a class="d-link" href="${esc(p.link)}" target="_blank" rel="noopener">Ver enlaces en TMDB${SVG(IC.ext)}</a>`;
+  }
+  html += `</section>`;
+
+  if (d) html += `<section class="d-sec"><h3>Sinopsis</h3>${d.overview ? `<p>${esc(d.overview)}</p>` : '<p class="muted">TMDB no tiene sinopsis para este título.</p>'}</section>`;
+  html += `<p class="attr">${PREVIEW ? 'Título de ejemplo: plataformas ilustrativas.' : `Datos de <a href="https://www.themoviedb.org/${base.type}/${base.id}" target="_blank" rel="noopener">TMDB</a>. Plataformas según JustWatch.`}</p>`;
+  return html;
+}
+
+/* ── Ajustes ── */
+function openSettings() {
+  current = null;
+  openSheet(settingsHTML(), 'Ajustes');
+}
+function settingsHTML(msg) {
+  const has = !!state.key;
+  const n = Object.keys(state.items).length;
+  let html = `<h2 class="s-title">Ajustes</h2>`;
+  html += `<section class="s-group"><h3>Conexión con TMDB</h3>`;
+  if (PREVIEW) {
+    html += `<p>En esta vista previa se usan títulos de ejemplo y no se consulta TMDB. En la app instalada pegarás aquí tu clave.</p>
+      <button class="btn gray small" type="button" data-act="resetdemo">${SVG(IC.retry)}Restablecer el ejemplo</button>`;
+  } else {
+    html += `<span class="status ${has ? 'ok' : 'no'}">${SVG(has ? IC.check : IC.key)}${has ? 'Conectada' : 'Sin clave'}</span>
+      <div class="field"><label for="keyInput">Token de acceso de lectura de la API</label>
+      <input id="keyInput" type="password" value="${esc(state.key)}" placeholder="eyJhbGciOi…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+      <div class="btn-row"><button class="btn tint small" type="button" data-act="savekey">Guardar y probar</button><button class="btn gray small" type="button" data-act="showkey">Mostrar</button></div>
+      ${msg ? `<p class="msg ${msg.ok ? 'ok' : 'err'}" role="status">${esc(msg.text)}</p>` : ''}
+      <details class="how"${has ? '' : ' open'}><summary>¿Cómo consigo la clave?</summary><ol>
+        <li>Crea una cuenta gratis en <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>.</li>
+        <li>Entra a Configuración → API y solicita una clave de uso personal.</li>
+        <li>Copia el “Token de acceso de lectura de la API” (el texto largo) y pégalo arriba. También sirve la “Clave de la API” corta.</li>
+      </ol></details>`;
+  }
+  html += `</section>`;
+  if (!PREVIEW) {
+    html += `<section class="s-group"><h3>Respaldo</h3>
+      <p>Tus listas se guardan solo en este dispositivo (${n} ${n === 1 ? 'título' : 'títulos'}). Guarda un respaldo de vez en cuando o para pasarlas a otro teléfono.</p>
+      <div class="btn-row"><button class="btn soft small" type="button" data-act="export">${SVG(IC.share)}Exportar</button>
+      <label class="btn soft small file-btn">${SVG(IC.inbox)}Importar<input type="file" id="importFile" accept="application/json,.json"></label></div></section>`;
+  }
+  html += `<p class="attr">Cartelera usa la API de TMDB, pero no está respaldada ni certificada por TMDB. La disponibilidad en plataformas proviene de JustWatch y puede cambiar.</p>`;
+  return html;
+}
+async function saveKey() {
+  const input = $('#keyInput');
+  const val = (input.value || '').trim().replace(/^Bearer\s+/i, '');
+  const prev = state.key;
+  if (!val) { state.key = ''; save(); $('#sheetBody').innerHTML = settingsHTML({ ok: false, text: 'Se borró la clave.' }); renderView(); return; }
+  state.key = val;
+  const btn = document.querySelector('[data-act="savekey"]'); if (btn) { btn.disabled = true; btn.textContent = 'Probando…'; }
+  try {
+    await tmdb('/configuration');
+    save();
+    search.trending = null; search.trendErr = null; search.results = null; search.error = null;
+    $('#sheetBody').innerHTML = settingsHTML({ ok: true, text: 'Listo: TMDB respondió correctamente.' });
+    renderView(); refreshProviders();
+  } catch (e) {
+    state.key = e.code === 'net' ? val : prev; save();
+    $('#sheetBody').innerHTML = settingsHTML({ ok: false, text: e.message });
+    const ki = $('#keyInput'); if (ki) ki.value = val;
+  }
+}
+async function exportData() {
+  const name = `cartelera-respaldo-${today()}.json`;
+  const data = JSON.stringify({ app: 'cartelera', version: 1, exportedAt: new Date().toISOString(), items: state.items }, null, 1);
+  const file = new File([data], name, { type: 'application/json' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Respaldo de Cartelera' }); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('Respaldo descargado');
+}
+async function importData(file) {
+  try {
+    const obj = JSON.parse(await file.text());
+    const src = obj && obj.items && typeof obj.items === 'object' ? obj.items : null;
+    if (!src) throw new Error('bad');
+    let added = 0;
+    for (const [k, it] of Object.entries(src)) {
+      if (!it || !it.id || !(it.type === 'movie' || it.type === 'tv') || !(it.status === 'want' || it.status === 'seen')) continue;
+      if (state.items[k]) continue;
+      state.items[k] = it; added++;
+    }
+    save(); renderView();
+    $('#sheetBody').innerHTML = settingsHTML({ ok: true, text: added ? `Se agregaron ${added} ${added === 1 ? 'título' : 'títulos'} del respaldo.` : 'El respaldo no tenía títulos nuevos.' });
+  } catch (e) {
+    $('#sheetBody').innerHTML = settingsHTML({ ok: false, text: 'Ese archivo no es un respaldo de Cartelera.' });
+  }
+}
+
+/* ── Hoja inferior ── */
+const root = $('#sheetRoot'), sheet = $('#sheet');
+let lastFocus = null, lockedY = 0;
+function openSheet(html, label) {
+  $('#sheetBody').innerHTML = html;
+  $('#sheetBody').scrollTop = 0;
+  sheet.setAttribute('aria-label', label || 'Ficha');
+  if (root.classList.contains('open')) return;
+  lastFocus = document.activeElement;
+  lockedY = window.scrollY;
+  document.body.style.top = -lockedY + 'px';
+  document.body.classList.add('locked');
+  root.classList.add('open'); root.setAttribute('aria-hidden', 'false');
+  setTimeout(() => $('#sheetClose').focus({ preventScroll: true }), 60);
+}
+function closeSheet() {
+  if (!root.classList.contains('open')) return;
+  root.classList.remove('open'); root.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('locked'); document.body.style.top = '';
+  window.scrollTo(0, lockedY);
+  current = null;
+  if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+}
+(() => { // deslizar hacia abajo para cerrar
+  let y0 = null, dy = 0;
+  sheet.addEventListener('touchstart', e => { y0 = $('#sheetBody').scrollTop <= 0 || !e.target.closest('.sheet-body') ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+  sheet.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    dy = e.touches[0].clientY - y0;
+    if (dy > 0) { sheet.classList.add('dragging'); sheet.style.transform = `translateY(${dy}px)`; }
+  }, { passive: true });
+  sheet.addEventListener('touchend', () => {
+    if (y0 === null) return;
+    sheet.classList.remove('dragging'); sheet.style.transform = '';
+    if (dy > 110) closeSheet();
+    y0 = null; dy = 0;
+  });
+})();
+
+/* ── Aviso ── */
+let toastTimer = 0;
+function toast(text) {
+  const t = $('#toast'); t.textContent = text; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ── Eventos ───────────────────────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-open],[data-add],[data-tab],[data-act],[data-seg],[data-prov],[data-star]');
+  if (!t) return;
+  if (t.dataset.tab) { if (root.classList.contains('open')) closeSheet(); setTab(t.dataset.tab, t.dataset.tab === 'search'); return; }
+  if (t.dataset.add) { addWant(t.dataset.add); return; }
+  if (t.dataset.open) { openDetail(t.dataset.open); return; }
+  if (t.dataset.seg) { ui[t.dataset.seg] = t.dataset.val; renderView(); return; }
+  if (t.hasAttribute('data-prov')) { ui.wantProv = t.dataset.prov; renderWant(); return; }
+  if (t.dataset.star && current) {
+    const it = state.items[current.k]; if (!it) return;
+    const n = Number(t.dataset.star); it.rating = it.rating === n ? 0 : n;
+    save(); paintDetail(); renderView(); return;
+  }
+  const act = t.dataset.act;
+  if (act === 'settings') { openSettings(); return; }
+  if (act === 'retry') { search.trendErr = null; search.trending = null; if (search.q) { const q = search.q; search.results = null; runSearch(q); } else renderSearch(); return; }
+  if (act === 'savekey') { saveKey(); return; }
+  if (act === 'showkey') { const i = $('#keyInput'); if (i) { const show = i.type === 'password'; i.type = show ? 'text' : 'password'; t.textContent = show ? 'Ocultar' : 'Mostrar'; } return; }
+  if (act === 'export') { exportData(); return; }
+  if (act === 'resetdemo') { state = demoState(); save(); search.results = null; renderView(); closeSheet(); toast('Ejemplo restablecido'); return; }
+  if (!current) return;
+  const k = current.k;
+  if (act === 'reload') { current.err = null; paintDetail(); loadDetail(k); return; }
+  if (act === 'want') { addWant(k); current.confirm = false; paintDetail(); return; }
+  if (act === 'seen') { markSeen(k); current.confirm = false; paintDetail(); return; }
+  if (act === 'rewant') { addWant(k, true); toast('De vuelta en Quiero ver'); current.confirm = false; paintDetail(); return; }
+  if (act === 'remove') {
+    if (!current.confirm) { current.confirm = true; paintDetail(); clearTimeout(current.ct); current.ct = setTimeout(() => { if (current && current.confirm) { current.confirm = false; paintDetail(); } }, 3500); return; }
+    removeItem(k); current.confirm = false; paintDetail(); return;
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'seenDate' && current) {
+    const it = state.items[current.k]; const v = e.target.value;
+    if (it && /^\d{4}-\d{2}-\d{2}$/.test(v)) { it.seenAt = v; save(); renderView(); }
+  }
+  if (e.target.id === 'importFile' && e.target.files && e.target.files[0]) importData(e.target.files[0]);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && root.classList.contains('open')) closeSheet();
+  if (e.key === 'Enter' && e.target.id === 'keyInput') { e.preventDefault(); saveKey(); }
+});
+document.addEventListener('error', e => { if (e.target && e.target.tagName === 'IMG') e.target.remove(); }, true);
+$('#backdrop').addEventListener('click', closeSheet);
+$('#sheetClose').addEventListener('click', closeSheet);
+$('#btnSettings').addEventListener('click', openSettings);
+$('#q').addEventListener('input', onQuery);
+$('#searchForm').addEventListener('submit', e => { e.preventDefault(); clearTimeout(search.timer); const q = $('#q').value.trim(); if (q) { search.q = q; runSearch(q); } $('#q').blur(); });
+$('#qClear').addEventListener('click', () => { $('#q').value = ''; onQuery(); $('#q').focus(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshProviders(); });
+
+/* ── Ejemplo para la vista previa ──────────────────────────────────────────── */
+const PV = { netflix: { n: 'Netflix', l: '' }, disney: { n: 'Disney+', l: '' }, atvp: { n: 'Apple TV+', l: '' }, hbo: { n: 'HBO Max', l: '' }, atv: { n: 'Apple TV', l: '' }, gplay: { n: 'Google Play', l: '' }, mubi: { n: 'MUBI', l: '' } };
+const pv = (stream = [], rent = [], buy = []) => ({ stream, free: [], rent, buy, link: '' });
+const DEMO = [
+  { id: 95396, type: 'tv', title: 'Separación', orig: 'Severance', year: '2022', poster: '', genres: 'Drama, Misterio, Ciencia ficción', extra: '2 temporadas', vote: 8.4, prov: pv([PV.atvp]),
+    overview: 'Mark dirige un equipo en Lumon, una empresa donde los empleados se someten a un procedimiento que separa por completo sus recuerdos del trabajo y de su vida personal.' },
+  { id: 126308, type: 'tv', title: 'Shōgun', orig: 'Shōgun', year: '2024', poster: '', genres: 'Drama, Historia', extra: '1 temporada', vote: 8.5, prov: pv([PV.disney]),
+    overview: 'Japón, año 1600. Un navegante inglés naufraga en sus costas y queda atrapado en la lucha de poder entre el señor Toranaga y sus rivales del consejo de regentes.' },
+  { id: 693134, type: 'movie', title: 'Dune: Parte Dos', orig: 'Dune: Part Two', year: '2024', poster: '', genres: 'Ciencia ficción, Aventura', extra: '2 h 46 min', vote: 8.1, prov: pv([PV.hbo], [PV.atv, PV.gplay], [PV.atv, PV.gplay]),
+    overview: 'Paul Atreides se une a los Fremen en Arrakis para vengar a su familia, mientras intenta evitar un futuro terrible que solo él alcanza a ver.' },
+  { id: 792307, type: 'movie', title: 'Pobres criaturas', orig: 'Poor Things', year: '2023', poster: '', genres: 'Comedia, Drama, Fantasía', extra: '2 h 21 min', vote: 7.7, prov: pv([PV.disney]),
+    overview: 'Bella Baxter, devuelta a la vida por un científico excéntrico, escapa de su tutela y recorre Europa decidida a descubrir el mundo por sí misma.' },
+  { id: 136315, type: 'tv', title: 'The Bear', orig: 'The Bear', year: '2022', poster: '', genres: 'Comedia, Drama', extra: '4 temporadas', vote: 8.0, prov: pv([PV.disney]),
+    overview: 'Carmy, un chef de alta cocina, vuelve a Chicago para hacerse cargo del local de sándwiches de su familia tras la muerte de su hermano.' },
+  { id: 66732, type: 'tv', title: 'Stranger Things', orig: 'Stranger Things', year: '2016', poster: '', genres: 'Drama, Misterio, Ciencia ficción', extra: '5 temporadas · Finalizada', vote: 8.6, prov: pv([PV.netflix]),
+    overview: 'En el pueblo de Hawkins, la desaparición de un niño destapa experimentos secretos, fuerzas sobrenaturales y a una niña con poderes extraordinarios.' },
+  { id: 872585, type: 'movie', title: 'Oppenheimer', orig: 'Oppenheimer', year: '2023', poster: '', genres: 'Drama, Historia', extra: '3 h', vote: 8.1, prov: pv([], [PV.atv, PV.gplay], [PV.atv, PV.gplay]),
+    overview: 'La historia del físico J. Robert Oppenheimer y su papel en el desarrollo de la bomba atómica durante la Segunda Guerra Mundial.' },
+  { id: 100088, type: 'tv', title: 'The Last of Us', orig: 'The Last of Us', year: '2023', poster: '', genres: 'Drama, Ciencia ficción', extra: '2 temporadas', vote: 8.5, prov: pv([PV.hbo]),
+    overview: 'Veinte años después de una pandemia que destruyó la civilización, Joel debe cruzar Estados Unidos escoltando a Ellie, una adolescente que podría ser clave para una cura.' },
+  { id: 976893, type: 'movie', title: 'Perfect Days', orig: 'Perfect Days', year: '2023', poster: '', genres: 'Drama', extra: '2 h 4 min', vote: 7.9, prov: pv([PV.mubi]),
+    overview: 'Hirayama limpia baños públicos en Tokio y encuentra belleza en la rutina, la música y los libros, hasta que algunos encuentros inesperados alteran sus días.' },
+  { id: 1184918, type: 'movie', title: 'Robot salvaje', orig: 'The Wild Robot', year: '2024', poster: '', genres: 'Animación, Ciencia ficción, Familia', extra: '1 h 42 min', vote: 8.3, prov: pv([], [PV.atv, PV.gplay], [PV.atv]),
+    overview: 'Roz, un robot que naufraga en una isla deshabitada, aprende a sobrevivir en la naturaleza y termina criando a un pequeño ganso huérfano.' },
+  { id: 83867, type: 'tv', title: 'Andor', orig: 'Andor', year: '2022', poster: '', genres: 'Ciencia ficción, Drama', extra: '2 temporadas · Finalizada', vote: 8.3, prov: pv([PV.disney]),
+    overview: 'Antes de Rogue One, Cassian Andor pasa de ser un ladrón sin causa a convertirse en una pieza clave del nacimiento de la Rebelión.' },
+];
+function demoState() {
+  const s = blank();
+  const add = (id, status, extra) => {
+    const d = DEMO.find(x => x.id === id);
+    s.items[keyOf(d)] = { id: d.id, type: d.type, title: d.title, year: d.year, poster: '', prov: d.prov, provAt: Date.now(), status, ...extra };
+  };
+  add(95396, 'want', { addedAt: daysAgo(2).getTime() });
+  add(126308, 'want', { addedAt: daysAgo(6).getTime() });
+  add(693134, 'want', { addedAt: daysAgo(11).getTime() });
+  add(792307, 'want', { addedAt: daysAgo(19).getTime() });
+  add(136315, 'seen', { addedAt: daysAgo(40).getTime(), seenAt: isoDay(daysAgo(9)), rating: 5 });
+  add(66732, 'seen', { addedAt: daysAgo(90).getTime(), seenAt: isoDay(daysAgo(36)), rating: 4 });
+  add(872585, 'seen', { addedAt: daysAgo(120).getTime(), seenAt: isoDay(daysAgo(58)), rating: 5 });
+  return s;
+}
+
+/* ── Inicio ── */
+let state = load();
+if (PREVIEW) $('#previewNote').hidden = false;
+setTab(state.tab || 'want');
+refreshProviders();
+if (!PREVIEW && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+})();
+</script>
+</body>
+</html>
