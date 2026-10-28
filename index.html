@@ -317,6 +317,7 @@ h1 { font: 700 34px/1.12 var(--ds-font-display); letter-spacing: -.022em; margin
 .grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--ds-line-2); margin: 8px auto 0; flex: none; }
 .sheet-close { position: absolute; top: 14px; right: 14px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--ds-fill); color: var(--ds-ink-2); }
 .sheet-close svg.i { width: 15px; height: 15px; stroke-width: 2.6; }
+.sheet-body > * { flex-shrink: 0; }
 .sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 14px 20px calc(var(--safe-b) + 22px); display: flex; flex-direction: column; gap: 22px; }
 
 /* Ficha */
@@ -805,7 +806,7 @@ function renderSearch() {
   const out = $('#searchOut');
   $('#qClear').hidden = !search.q;
   if (!PREVIEW && !state.key) { out.innerHTML = onboardHTML(); return; }
-  const pend = search.pending ? `<div class="note">${SVG(IC.inbox)}<p>Elige cuál es <b>${esc(search.pending.name)}</b> de tu historial de Netflix y toca ${SVG(IC.check, 'i inline')}. <button type="button" data-act="nfcancelpick">Cancelar</button></p></div>` : '';
+  const pend = search.pending ? `<div class="note">${SVG(IC.inbox)}<p>Elige cuál es <b>${esc(nfLabel(search.pending))}</b>${search.pending.name ? '' : ` (vista entre ${esc(nfMonth(search.pending.first))} y ${esc(nfMonth(search.pending.last))})`} de tu historial de Netflix y toca ${SVG(IC.check, 'i inline')}. <button type="button" data-act="nfcancelpick">Cancelar</button></p></div>` : '';
   if (search.q) {
     if (search.loading && !search.results) { out.innerHTML = pend + skelHTML(5); return; }
     if (search.error) { out.innerHTML = pend + errorHTML(search.error); return; }
@@ -1227,18 +1228,47 @@ function nfSeconds(s) {
 const NF_MARK = /^(temporadas?|seasons?|parte|part|vol(?:umen|ume)?\.?|libro|book|cap[ií]tulo|chapter|episodios?|episodes?|ep\.|serie limitada|limited series|mini-?series?|colecci[oó]n|collection)(?=\s|\d|$)/i;
 const NF_STRONG = /^(temporadas?|seasons?|serie limitada|limited series|mini-?series?|episodios?|episodes?|ep\.)(?=\s|\d|$)/i;
 
+// Limpia el texto tal como lo entrega Netflix: acentos compuestos, espacios duros, espacios repetidos
+const nfClean = s => String(s || '').normalize('NFC').replace(/[   ​﻿]/g, ' ').replace(/\s+/g, ' ').trim();
+
 function nfClassify(title) {
-  const seg = String(title || '').split(/:\s+/).map(s => s.trim()).filter(Boolean);
+  const raw = nfClean(title).split(/\s*:\s+/);
+  if (raw.length > 1 && !raw[0].trim()) return { name: '', kind: 'tv', ep: raw.slice(1).join(': '), segs: [] }; // " : Episodio 1": Netflix no trae el nombre
+  const seg = raw.map(s => s.trim()).filter(Boolean);
   for (let i = 1; i < seg.length; i++) {
     // "Kill Bill: Volumen 1" o "Dune: Parte dos" son películas: la marca débil al final no basta
     if (NF_MARK.test(seg[i]) && (NF_STRONG.test(seg[i]) || i < seg.length - 1)) {
       const name = seg.slice(0, i);
       // "Stranger Things: Stranger Things 4: Capítulo uno" → "Stranger Things"
       while (name.length > 1 && nfFold(name[name.length - 1]).startsWith(nfFold(name[0]))) name.pop();
-      return { name: name.join(': '), kind: 'tv', ep: seg.slice(i).join(': ') };
+      return { name: name.join(': '), kind: 'tv', ep: seg.slice(i).join(': '), segs: seg, marked: true };
     }
   }
-  return { name: seg.join(': '), kind: 'movie', ep: '' };
+  return { name: seg.join(': '), kind: 'movie', ep: '', segs: seg, marked: false };
+}
+
+// Decodifica el archivo aunque venga en otra codificación o con las tildes dañadas por Excel
+const NF_CP1252 = { 0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85, 0x2020: 0x86, 0x2021: 0x87, 0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A, 0x2039: 0x8B, 0x0152: 0x8C, 0x017D: 0x8E, 0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x02DC: 0x98, 0x2122: 0x99, 0x0161: 0x9A, 0x203A: 0x9B, 0x0153: 0x9C, 0x017E: 0x9E, 0x0178: 0x9F };
+const NF_CONT = '[\\u0080-\\u00BF' + Object.keys(NF_CP1252).map(c => '\\u' + Number(c).toString(16).padStart(4, '0')).join('') + ']';
+const NF_MOJI = new RegExp('[\\u00C2-\\u00F4]' + NF_CONT + '{1,3}', 'g');
+function nfFixMojibake(s) {
+  if (!NF_MOJI.test(s)) return s;
+  NF_MOJI.lastIndex = 0;
+  const dec = new TextDecoder('utf-8', { fatal: true });
+  return s.replace(NF_MOJI, m => {
+    const bytes = [];
+    for (const ch of m) { const c = ch.codePointAt(0); bytes.push(c < 256 ? c : NF_CP1252[c]); }
+    try { const out = dec.decode(new Uint8Array(bytes)); return out.length === 1 ? out : m; } catch (e) { return m; }
+  });
+}
+function nfDecode(bytes) {
+  if (bytes[0] === 0xFF && bytes[1] === 0xFE) return nfFixMojibake(new TextDecoder('utf-16le').decode(bytes.subarray(2)));
+  if (bytes[0] === 0xFE && bytes[1] === 0xFF) return nfFixMojibake(new TextDecoder('utf-16be').decode(bytes.subarray(2)));
+  const body = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF ? bytes.subarray(3) : bytes;
+  let text;
+  try { text = new TextDecoder('utf-8', { fatal: true }).decode(body); }
+  catch (e) { text = new TextDecoder('windows-1252').decode(body); } // guardado de nuevo desde Excel o Numbers
+  return nfFixMojibake(text);
 }
 
 function nfParse(text) {
@@ -1262,11 +1292,11 @@ function nfParse(text) {
   const plays = [], profiles = new Map();
   let skipped = 0;
   for (const r of body) {
-    const title = String(r[iT] || '').trim();
-    if (!title) continue;
+    const title = nfClean(r[iT]);
+    if (!title || title === ':') continue;
     if (iSup >= 0 && String(r[iSup] || '').trim()) { skipped++; continue; } // avances, recapitulaciones
     if (iDur >= 0 && nfSeconds(r[iDur]) < 60) { skipped++; continue; } // vistas de unos segundos
-    const profile = iProf >= 0 ? String(r[iProf] || '').trim() : '';
+    const profile = iProf >= 0 ? nfClean(r[iProf]) : '';
     plays.push({ title, date: iDate >= 0 ? parseDate(r[iDate]) : '', profile });
     if (profile) profiles.set(profile, (profiles.get(profile) || 0) + 1);
   }
@@ -1277,19 +1307,62 @@ function nfParse(text) {
 }
 
 function nfGroup(plays) {
+  const cls = plays.map(p => ({ p, c: nfClassify(p.title) }));
+  // Series reconocidas por "Temporada", "Miniserie", etc.
+  const known = new Map();
+  for (const { c } of cls) if (c.kind === 'tv' && c.name) known.set(nfFold(c.name), c.name);
+  // Títulos sin esa marca ("Ratched: Piloto", "Conexiones: Nubes"): se agrupan por el inicio que comparten
+  const prefixTitles = new Map();
+  for (const { c } of cls) {
+    if (c.kind !== 'movie' || c.segs.length < 2) continue;
+    const full = nfFold(c.name);
+    for (let L = 1; L < c.segs.length; L++) {
+      const k = nfFold(c.segs.slice(0, L).join(': '));
+      if (!prefixTitles.has(k)) prefixTitles.set(k, new Set());
+      prefixTitles.get(k).add(full);
+    }
+  }
+  for (const x of cls) {
+    const { c } = x;
+    if (c.kind !== 'movie' || c.segs.length < 2) continue;
+    for (let L = c.segs.length - 1; L >= 1; L--) { // "Gambito de dama: Detrás de cámaras" va con la serie
+      const k = nfFold(c.segs.slice(0, L).join(': '));
+      if (known.has(k)) { x.c = { name: known.get(k), kind: 'tv', ep: c.segs.slice(L).join(': ') }; break; }
+    }
+    if (x.c.kind === 'tv') continue;
+    for (let L = c.segs.length - 1; L >= 1; L--) {
+      const k = nfFold(c.segs.slice(0, L).join(': '));
+      if (prefixTitles.get(k).size >= 2) {
+        const alts = [];
+        for (let j = L - 1; j >= 1; j--) alts.push(c.segs.slice(0, j).join(': '));
+        x.c = { name: c.segs.slice(0, L).join(': '), kind: 'tv', ep: c.segs.slice(L).join(': '), weak: true, alts, full: c.name };
+        break;
+      }
+    }
+  }
   const map = new Map();
-  for (const p of plays) {
-    const c = nfClassify(p.title);
-    if (!c.name) continue;
+  for (const { p, c } of cls.map(x => x)) {
     const key = c.kind + '|' + nfFold(c.name);
     let g = map.get(key);
-    if (!g) map.set(key, g = { name: c.name, kind: c.kind, first: '', last: '', plays: 0, eps: new Set() });
+    if (!g) map.set(key, g = { name: c.name, kind: c.kind, first: '', last: '', plays: 0, eps: new Set(), weak: true, alts: c.alts || [], members: new Map() });
+    if (!c.weak) g.weak = false;
     g.plays++;
     g.eps.add(nfFold(c.ep || c.name));
     if (p.date) { if (!g.first || p.date < g.first) g.first = p.date; if (p.date > g.last) g.last = p.date; }
+    if (c.weak) {
+      const mk = nfFold(c.full);
+      let m = g.members.get(mk);
+      if (!m) g.members.set(mk, m = { name: c.full, first: '', last: '', plays: 0 });
+      m.plays++;
+      if (p.date) { if (!m.first || p.date < m.first) m.first = p.date; if (p.date > m.last) m.last = p.date; }
+    }
   }
   return [...map.values()]
-    .map(g => ({ name: g.name, kind: g.kind, first: g.first, last: g.last, plays: g.plays, eps: g.kind === 'tv' ? g.eps.size : 0 }))
+    .map(g => {
+      const out = { name: g.name, kind: g.kind, first: g.first, last: g.last, plays: g.plays, eps: g.kind === 'tv' ? g.eps.size : 0 };
+      if (g.kind === 'tv' && g.weak && g.members.size) { out.weak = true; out.alts = g.alts; out.members = [...g.members.values()]; }
+      return out;
+    })
     .sort((a, b) => b.last.localeCompare(a.last) || a.name.localeCompare(b.name));
 }
 
@@ -1301,6 +1374,7 @@ let nfDraft = null; // { parsed, profile, movies }
 const nfState = () => state.nf || (state.nf = { queue: [], pending: [], stats: null, error: '' });
 const nfDateMs = s => { const t = s ? new Date(s + 'T12:00:00').getTime() : NaN; return isNaN(t) ? Date.now() : t; };
 const nfMonth = s => s ? fmtDay(s.slice(0, 7) + '-01', { month: 'short', year: 'numeric' }) : '';
+const nfDay = s => !s || s > today() ? today() : s; // Netflix anota en hora UTC: nunca una fecha futura
 const nfMin = (a, b) => !a ? b : !b ? a : (a < b ? a : b);
 const nfPlural = (n, one, many) => `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
 
@@ -1359,7 +1433,7 @@ function nfPaint() {
 /* Paso 1: leer el archivo y mostrar el resumen */
 async function nfReadFile(file) {
   let parsed;
-  try { parsed = nfParse(await file.text()); }
+  try { parsed = nfParse(nfDecode(new Uint8Array(await file.arrayBuffer()))); }
   catch (e) { nfShowError('Ese archivo no parece ser el historial de Netflix. Usa el CSV que se descarga desde Actividad de visualización.'); return; }
   if (!parsed.plays.length) { nfShowError('El archivo no tiene reproducciones.'); return; }
   nfDraft = { parsed, profile: parsed.profiles.length > 1 ? null : '*', movies: true };
@@ -1398,12 +1472,13 @@ function nfDraftHTML() {
   </section>`;
   const recent = groups.filter(g => movies || g.kind === 'tv').slice(0, 6);
   if (recent.length) {
-    h += `<section class="d-sec"><h3>Lo más reciente</h3><div class="list">${recent.map(g => `<div class="item"><div class="item-main static">${posterHTML({ title: g.name }, 'sm')}<div class="info"><div class="title">${esc(g.name)}</div><div class="sub"><span>${esc(nfLine(g))}</span></div></div></div></div>`).join('')}</div></section>`;
+    h += `<section class="d-sec"><h3>Lo más reciente</h3><div class="list">${recent.map(g => `<div class="item"><div class="item-main static">${posterHTML({ title: nfLabel(g) }, 'sm')}<div class="info"><div class="title">${esc(nfLabel(g))}</div><div class="sub"><span>${esc(nfLine(g))}</span></div></div></div></div>`).join('')}</div></section>`;
   }
   h += `<div class="d-actions"><button class="btn tint wide" type="button" data-act="nfstart" ${n ? '' : 'disabled'}>${SVG(IC.check)}Agregar ${nfPlural(n, 'título', 'títulos')} a Vistos</button>
     <button class="btn gray wide" type="button" data-act="nfcancel">Cancelar</button></div>`;
   return h;
 }
+const nfLabel = e => e.name || 'Serie sin nombre en el archivo';
 function nfLine(g) {
   const parts = [typeLbl(g.kind)];
   if (g.kind === 'tv' && g.eps) parts.push(nfPlural(g.eps, 'episodio', 'episodios'));
@@ -1432,7 +1507,7 @@ async function nfSearchList(path, query) {
   return (r.results || []).filter(x => type || x.media_type === 'movie' || x.media_type === 'tv').map(x => norm(x, type || x.media_type));
 }
 const nfWords = s => nfFold(s).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-function nfBest(list, query) {
+function nfBest(list, query, min = 34) {
   const q = nfWords(query), qt = new Set(q.split(' ').filter(Boolean));
   let best = null, bestScore = 0;
   list.slice(0, 10).forEach((r, i) => {
@@ -1450,19 +1525,42 @@ function nfBest(list, query) {
       if (s > bestScore) { bestScore = s; best = r; }
     }
   });
-  return bestScore >= 34 ? best : null;
+  return bestScore >= min ? best : null;
 }
-async function nfResolve(e) {
-  const q = e.name;
-  const plain = q.replace(/\s*[\(\[][^\)\]]*[\)\]]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+const nfPlain = q => q.replace(/\s*[\(\[][^\)\]]*[\)\]]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+async function nfFindOne(e, tvFallback = true) {
+  const q = e.name, plain = nfPlain(q);
   const tries = e.kind === 'tv' ? [['/search/tv', q], ['/search/multi', q]] : [['/search/movie', q], ['/search/multi', q]];
   if (plain && plain !== q) tries.push([e.kind === 'tv' ? '/search/tv' : '/search/multi', plain]);
-  if (e.kind === 'movie' && q.includes(': ')) tries.push(['/search/tv', q.split(': ')[0]]); // episodio suelto de una serie sin "Temporada"
+  if (e.kind === 'movie' && tvFallback) { // episodio suelto de una serie: "Mad Men: Hay humo en tus ojos"
+    const seg = q.split(': ');
+    for (let L = seg.length - 1; L >= 1; L--) tries.push(['/search/tv', seg.slice(0, L).join(': ')]);
+  }
   for (const [path, query] of tries) {
-    const hit = nfBest(await nfSearchList(path, query), query);
+    const hit = nfBest(await nfSearchList(path, query), query, path === '/search/tv' && e.kind === 'movie' ? 60 : 34);
     if (hit) return hit;
   }
   return null;
+}
+// Devuelve pares [entrada, resultado]: un grupo sin "Temporada" que no resulta ser serie se separa en películas
+async function nfResolve(e) {
+  if (!e.name) return [[e, null]];
+  if (!e.weak) return [[e, await nfFindOne(e)]];
+  for (const q of [e.name, ...(e.alts || [])]) {
+    const hit = nfBest(await nfSearchList('/search/tv', q), q, 60);
+    if (hit) return [[e, hit]];
+  }
+  const out = [], left = [];
+  for (const m of e.members || []) {
+    const me = { name: m.name, kind: 'movie', first: m.first, last: m.last, plays: m.plays, eps: 0 };
+    const hit = await nfFindOne(me, false);
+    if (hit) out.push([me, hit]); else left.push(m);
+  }
+  if (left.length) {
+    const firsts = left.map(m => m.first).filter(Boolean).sort(), lasts = left.map(m => m.last).filter(Boolean).sort();
+    out.push([{ name: e.name, kind: 'tv', first: firsts[0] || '', last: lasts[lasts.length - 1] || '', plays: left.reduce((a, m) => a + m.plays, 0), eps: left.length }, null]);
+  }
+  return out;
 }
 function nfApply(e, r, run) {
   const nf = nfState(), st = nf.stats || (nf.stats = { total: 0, added: 0, merged: 0, unmatched: 0, run });
@@ -1482,12 +1580,12 @@ function nfApply(e, r, run) {
       if (!(it.src === 'netflix' && it.nfRun === run)) st.merged++;
     }
     it.nf.first = nfMin(it.nf.first, e.first);
-    if (it.status === 'seen' && e.last && (!it.seenAt || e.last > it.seenAt)) it.seenAt = e.last;
+    if (it.status === 'seen' && e.last && (!it.seenAt || e.last > it.seenAt)) it.seenAt = nfDay(e.last);
     return;
   }
   state.items[k] = {
     id: r.id, type: r.type, title: r.title, year: r.year, poster: r.poster, status: 'seen',
-    seenAt: e.last || today(), addedAt: nfDateMs(e.last), prov: null, provAt: 0,
+    seenAt: nfDay(e.last), addedAt: nfDateMs(e.last), prov: null, provAt: 0,
     nf: { eps, plays: e.plays, first: e.first, run }, src: 'netflix', nfRun: run,
   };
   st.added++;
@@ -1500,13 +1598,14 @@ async function nfRun() {
   let lastPaint = Date.now();
   while (nf.queue.length) {
     const batch = nf.queue.slice(0, 4);
-    const out = await Promise.all(batch.map(e => nfResolve(e).then(r => ({ e, r }), err => ({ e, err }))));
+    const out = await Promise.all(batch.map(e => nfResolve(e).then(list => ({ e, list }), err => ({ e, err }))));
     let stop = false, slow = false;
-    for (const { e, r, err } of out) {
+    for (const { e, list, err } of out) {
       if (err && (err.code === 'auth' || err.code === 'net' || err.code === 'nokey')) { nf.error = err.message; stop = true; continue; }
       if (err && err.code === 'rate') { slow = true; continue; } // TMDB pide ir más lento: queda en la cola
       const i = nf.queue.indexOf(e); if (i >= 0) nf.queue.splice(i, 1);
-      nfApply(e, err ? null : r, run);
+      if (err) nfApply(e, null, run);
+      else for (const [x, r] of list) nfApply(x, r, run);
     }
     save();
     if (stop) break;
@@ -1529,9 +1628,9 @@ function nfPendingHTML() {
   let h = `<h2 class="s-title">Sin identificar</h2>`;
   if (!p.length) return h + emptyHTML(IC.checkCircle, 'No queda nada pendiente', 'Todos los títulos de tu historial de Netflix ya están en tus listas.');
   h += `<p class="how">No encontré estos títulos en TMDB con el nombre que usa Netflix. Toca la lupa para elegir el correcto o descártalos.</p>`;
-  h += `<div class="list">${p.map((e, i) => `<div class="item"><div class="item-main static">${posterHTML({ title: e.name }, 'sm')}<div class="info"><div class="title">${esc(e.name)}</div><div class="sub"><span>${esc(nfLine(e))}</span></div></div></div>
-    <button class="item-act" type="button" data-nffind="${i}" aria-label="Buscar ${esc(e.name)}">${SVG(IC.search)}</button>
-    <button class="item-act gray" type="button" data-nfdrop="${i}" aria-label="Descartar ${esc(e.name)}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>`).join('')}</div>`;
+  h += `<div class="list">${p.map((e, i) => `<div class="item"><div class="item-main static">${posterHTML({ title: nfLabel(e) }, 'sm')}<div class="info"><div class="title">${esc(nfLabel(e))}</div><div class="sub"><span>${esc(nfLine(e))}</span></div></div></div>
+    <button class="item-act" type="button" data-nffind="${i}" aria-label="Buscar ${esc(nfLabel(e))}">${SVG(IC.search)}</button>
+    <button class="item-act gray" type="button" data-nfdrop="${i}" aria-label="Descartar ${esc(nfLabel(e))}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>`).join('')}</div>`;
   h += `<button class="btn ${nfDropAll ? 'danger' : 'gray'} block" type="button" data-act="nfdropall">${SVG(IC.trash)}${nfDropAll ? 'Toca de nuevo para descartar todos' : 'Descartar todos'}</button>`;
   return h;
 }
@@ -1543,7 +1642,7 @@ function nfFind(i) {
   setTab('search');
   $('#q').value = e.name;
   search.q = e.name; search.results = null; search.error = null;
-  runSearch(e.name);
+  if (e.name) runSearch(e.name); else { renderSearch(); $('#q').focus(); } // sin nombre: lo escribe quien recuerde la serie
 }
 function nfPick(k) {
   const e = search.pending; if (!e) return;
