@@ -23,6 +23,15 @@ La clave queda guardada solo en el teléfono.
 - **Vistos**: lo que ya viste, ordenado por mes, con la fecha y una nota de 1 a 5 estrellas.
 - **Buscar**: busca series y películas; con el botón **+** las agregas directo a Quiero ver.
 
+## Importar el historial de Netflix
+
+En **Ajustes → Historial de Netflix** (o desde Vistos, cuando está vacío) puedes importar el archivo de tu actividad de Netflix:
+
+1. En Safari, entra a netflix.com/viewingactivity con tu perfil, baja hasta el final y toca **Descargar todo**.
+2. En la app, toca **Importar archivo de Netflix** y elige `NetflixViewingHistory.csv` (queda en Archivos → Descargas).
+
+La app agrupa los episodios en su serie, busca cada título en TMDB y lo deja en Vistos con la fecha de la última vez que lo viste y la cantidad de episodios. También acepta `ViewingActivity.csv` de la solicitud de datos personales de Netflix (permite elegir el perfil). Los títulos que no se puedan identificar quedan en una lista para elegirlos a mano. El archivo se lee en el teléfono y no se sube a ningún lado.
+
 Las listas se guardan solo en el dispositivo. En **Ajustes → Respaldo** puedes exportarlas a un archivo e importarlas en otro teléfono.
 
 Cartelera usa la API de TMDB, pero no está respaldada ni certificada por TMDB. La disponibilidad en plataformas proviene de JustWatch.

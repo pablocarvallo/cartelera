@@ -150,6 +150,7 @@ body {
   --poster-ink: #FFFFFF;
   --poster-edge: rgba(14, 27, 51, 0.16);
   --sheet-bg: rgba(244, 247, 254, 0.97);
+  --knob: #FFFFFF;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -376,6 +377,28 @@ h1 { font: 700 34px/1.12 var(--ds-font-display); letter-spacing: -.022em; margin
 .file-btn { position: relative; overflow: hidden; }
 .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
 
+/* Importar desde Netflix */
+.bar { height: 8px; border-radius: 4px; background: var(--ds-fill-2); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 4px; background: var(--ds-btn); transition: width .4s ease; }
+.s-group p.hint { font-size: 13px; }
+.nf-sum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.nf-sum div { min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; background: var(--ds-fill); }
+.nf-sum b { font: 700 24px/1.1 var(--ds-font-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.nf-sum span { font-size: 13px; color: var(--ds-ink-2); }
+.switch-row { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; font-size: 16px; cursor: pointer; }
+.switch-row input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch-row i { position: relative; flex: none; width: 51px; height: 31px; border-radius: 16px; background: var(--ds-fill-2); transition: background .2s; }
+.switch-row i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: var(--knob); box-shadow: 0 2px 6px rgba(14, 27, 51, .25); transition: transform .2s; }
+.switch-row input:checked + i { background: var(--ds-btn); }
+.switch-row input:checked + i::after { transform: translateX(20px); }
+.switch-row input:focus-visible + i { outline: 3px solid var(--ds-tint); outline-offset: 2px; }
+.item-main.static { cursor: default; }
+.item-main.static:active { background: none; }
+.item-act.gray { background: var(--ds-fill); color: var(--ds-ink-2); }
+.item-act:has(+ .item-act) { margin-right: 6px; }
+svg.i.inline { display: inline-block; width: 15px; height: 15px; vertical-align: -2px; stroke-width: 2.6; }
+.seen-row .val { font-size: 15px; color: var(--ds-ink-2); text-align: right; }
+
 /* Aviso flotante */
 .toast { position: fixed; left: 50%; bottom: calc(var(--safe-b) + 92px); z-index: 60; transform: translate(-50%, 16px); opacity: 0; transition: transform .3s ease, opacity .3s ease; padding: 11px 18px; border-radius: var(--ds-r-pill); font-size: 15px; font-weight: 600; white-space: nowrap; pointer-events: none; color: var(--ds-ink); }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
@@ -409,7 +432,13 @@ h1 { font: 700 34px/1.12 var(--ds-font-display); letter-spacing: -.022em; margin
   </div>
 
   <section class="view" id="vWant" aria-labelledby="viewTitle"></section>
-  <section class="view" id="vSeen" aria-labelledby="viewTitle" hidden></section>
+  <section class="view" id="vSeen" aria-labelledby="viewTitle" hidden>
+    <form class="searchbox" id="seenFilterForm" role="search" hidden>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+      <input id="seenFilter" type="search" placeholder="Buscar en Vistos" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar en Vistos">
+    </form>
+    <div id="seenOut" class="view"></div>
+  </section>
   <section class="view" id="vSearch" aria-labelledby="viewTitle" hidden>
     <form class="searchbox" id="searchForm" role="search">
       <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
@@ -558,6 +587,7 @@ async function tmdb(path, params = {}, signal) {
   }
   if (res.status === 401) throw fail('auth', 'TMDB no aceptó la clave. Revísala en Ajustes.');
   if (res.status === 404) throw fail('404', 'TMDB no tiene este título.');
+  if (res.status === 429) throw fail('rate', 'TMDB pidió esperar un momento.');
   if (!res.ok) throw fail('http', `TMDB respondió con un error (${res.status}). Inténtalo en un momento.`);
   return res.json();
 }
@@ -653,11 +683,15 @@ function rowHTML(it, mode) {
   let sub = `<span>${esc([it.year, typeLbl(it.type)].filter(Boolean).join(' · '))}</span>`;
   let extra = '';
   if (mode === 'want') extra = provLine(it);
-  if (mode === 'seen') sub = `<span>${esc(typeLbl(it.type))} · ${esc(fmtDay(it.seenAt, { day: 'numeric', month: 'short' }))}</span>${starsHTML(it.rating)}`;
+  if (mode === 'seen') {
+    const eps = it.type === 'tv' && it.nf && it.nf.eps > 1 ? ` · ${it.nf.eps} ep.` : '';
+    sub = `<span>${esc(typeLbl(it.type))}${eps} · ${esc(fmtDay(it.seenAt, { day: 'numeric', month: 'short' }))}</span>${starsHTML(it.rating)}`;
+  }
   let act = '';
   if (mode === 'search') {
     const st = state.items[k] && state.items[k].status;
-    if (st === 'want') act = `<button class="item-act want" type="button" data-open="${k}" aria-label="Ya está en Quiero ver">${SVG(IC.bookmark)}</button>`;
+    if (search.pending) act = `<button class="item-act" type="button" data-nfpick="${k}" aria-label="Es ${esc(it.title)}: dejar en Vistos">${SVG(IC.check)}</button>`;
+    else if (st === 'want') act = `<button class="item-act want" type="button" data-open="${k}" aria-label="Ya está en Quiero ver">${SVG(IC.bookmark)}</button>`;
     else if (st === 'seen') act = `<button class="item-act seen" type="button" data-open="${k}" aria-label="Ya la viste">${SVG(IC.check)}</button>`;
     else act = `<button class="item-act" type="button" data-add="${k}" aria-label="Agregar ${esc(it.title)} a Quiero ver">${SVG(IC.plus)}</button>`;
   }
@@ -676,12 +710,13 @@ function segHTML(name, value) {
   return `<div class="seg" role="group" aria-label="Tipo">${opts.map(([v, l]) => `<button type="button" data-seg="${name}" data-val="${v}" aria-pressed="${value === v}">${l}</button>`).join('')}</div>`;
 }
 const items = status => Object.values(state.items).filter(it => it.status === status);
-const ui = { wantType: 'all', wantProv: '', seenType: 'all' };
+const ui = { wantType: 'all', wantProv: '', seenType: 'all', seenQ: '' };
 
 /* ── Vistas ── */
 const TITLES = { want: 'Quiero ver', seen: 'Vistos', search: 'Buscar' };
 function setTab(tab, focus) {
   if (!TITLES[tab]) tab = 'want';
+  if (tab !== 'search' && search.pending) { search.pending = null; $('#q').value = ''; search.q = ''; search.results = null; }
   state.tab = tab; save();
   $('#viewTitle').textContent = TITLES[tab];
   document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
@@ -728,15 +763,27 @@ function renderSeen() {
   const all = items('seen').sort((a, b) => (b.seenAt || '').localeCompare(a.seenAt || '') || (b.addedAt || 0) - (a.addedAt || 0));
   const y = String(new Date().getFullYear());
   const thisYear = all.filter(it => (it.seenAt || '').startsWith(y)).length;
-  $('#eyebrow').textContent = all.length ? `${all.length} ${all.length === 1 ? 'título' : 'títulos'} · ${thisYear} en ${y}` : 'Tu registro';
-  const el = $('#vSeen');
+  $('#eyebrow').textContent = all.length ? `${all.length.toLocaleString('es-CL')} ${all.length === 1 ? 'título' : 'títulos'} · ${thisYear} en ${y}` : 'Tu registro';
+  const el = $('#seenOut');
+  $('#seenFilterForm').hidden = all.length < 12;
+  const nf = state.nf;
+  let html = '';
+  if (nf && nf.queue && nf.queue.length) {
+    const total = (nf.stats && nf.stats.total) || nf.queue.length;
+    html += `<div class="note">${SVG(IC.inbox)}<p><b>Importando desde Netflix:</b> ${(total - nf.queue.length).toLocaleString('es-CL')} de ${total.toLocaleString('es-CL')}. <button type="button" data-act="nfopen">Ver avance</button></p></div>`;
+  } else if (nf && nf.pending && nf.pending.length) {
+    html += `<div class="note">${SVG(IC.search)}<p>${nf.pending.length === 1 ? 'Un título' : nf.pending.length + ' títulos'} de Netflix sin identificar. <button type="button" data-act="nfpending">Revisar</button></p></div>`;
+  }
   if (!all.length) {
-    el.innerHTML = emptyHTML(IC.checkCircle, 'Aún no marcas nada como visto', 'Cuando termines una serie o película, márcala como vista desde su ficha y quedará registrada aquí.');
+    el.innerHTML = html + emptyHTML(IC.checkCircle, 'Aún no marcas nada como visto', 'Cuando termines una serie o película, márcala como vista desde su ficha. También puedes traer todo tu historial de Netflix.',
+      PREVIEW ? '' : `<button class="btn soft" type="button" data-act="nfopen">${SVG(IC.inbox)}Importar desde Netflix</button>`);
     return;
   }
-  const list = ui.seenType === 'all' ? all : all.filter(it => it.type === ui.seenType);
-  let html = segHTML('seenType', ui.seenType);
-  if (!list.length) { el.innerHTML = html + emptyHTML(IC.film, 'Nada por aquí', 'No hay títulos de este tipo en tu registro.'); return; }
+  let list = ui.seenType === 'all' ? all : all.filter(it => it.type === ui.seenType);
+  const fq = fold(ui.seenQ.trim());
+  if (fq) list = list.filter(it => fold(it.title).includes(fq));
+  html += segHTML('seenType', ui.seenType);
+  if (!list.length) { el.innerHTML = html + emptyHTML(IC.film, 'Nada por aquí', fq ? `Ningún título visto coincide con “${ui.seenQ.trim()}”.` : 'No hay títulos de este tipo en tu registro.'); return; }
   const groups = [];
   for (const it of list) {
     const label = it.seenAt ? cap(fmtDay(it.seenAt.slice(0, 7) + '-01', { month: 'long', year: 'numeric' })) : 'Sin fecha';
@@ -758,13 +805,15 @@ function renderSearch() {
   const out = $('#searchOut');
   $('#qClear').hidden = !search.q;
   if (!PREVIEW && !state.key) { out.innerHTML = onboardHTML(); return; }
+  const pend = search.pending ? `<div class="note">${SVG(IC.inbox)}<p>Elige cuál es <b>${esc(search.pending.name)}</b> de tu historial de Netflix y toca ${SVG(IC.check, 'i inline')}. <button type="button" data-act="nfcancelpick">Cancelar</button></p></div>` : '';
   if (search.q) {
-    if (search.loading && !search.results) { out.innerHTML = skelHTML(5); return; }
-    if (search.error) { out.innerHTML = errorHTML(search.error); return; }
-    if (search.results && !search.results.length) { out.innerHTML = emptyHTML(IC.search, `Sin resultados para “${search.q}”`, 'Prueba con el título original o revisa cómo está escrito.'); return; }
-    if (search.results) out.innerHTML = `<div class="list fade-in">${search.results.map(r => rowHTML(r, 'search')).join('')}</div>`;
+    if (search.loading && !search.results) { out.innerHTML = pend + skelHTML(5); return; }
+    if (search.error) { out.innerHTML = pend + errorHTML(search.error); return; }
+    if (search.results && !search.results.length) { out.innerHTML = pend + emptyHTML(IC.search, `Sin resultados para “${search.q}”`, 'Prueba con el título original o revisa cómo está escrito.'); return; }
+    if (search.results) out.innerHTML = pend + `<div class="list fade-in">${search.results.map(r => rowHTML(r, 'search')).join('')}</div>`;
     return;
   }
+  if (pend) { out.innerHTML = pend; return; }
   if (search.trendErr) { out.innerHTML = errorHTML(search.trendErr); return; }
   if (!search.trending) { out.innerHTML = `<h2 class="group-h">Populares esta semana</h2>${skelHTML(6)}`; loadTrending(); return; }
   out.innerHTML = `<h2 class="group-h">${PREVIEW ? 'Títulos de ejemplo' : 'Populares esta semana'}</h2><div class="list">${search.trending.map(r => rowHTML(r, 'search')).join('')}</div>`;
@@ -855,9 +904,11 @@ function removeItem(k) {
 
 /* ── Ficha ─────────────────────────────────────────────────────────────────── */
 let current = null; // { k, d, err, confirm }
+let sheetMode = null; // 'detail' | 'settings' | 'nf' | 'nfdraft' | 'nfpending'
 function openDetail(k) {
   const base = baseOf(k); if (!base) return;
   current = { k, d: detailCache.get(k) || null, err: null, confirm: false };
+  sheetMode = 'detail';
   openSheet(detailHTML(), 'Ficha de ' + base.title);
   if (!current.d) loadDetail(k);
 }
@@ -889,6 +940,7 @@ function detailHTML() {
       <button class="btn ${conf ? 'danger' : 'gray'} wide" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Toca de nuevo para quitarla' : 'Quitar de Quiero ver'}</button></div>`;
   } else {
     html += `<div class="seen-box"><div class="seen-row"><label for="seenDate">Vista el</label><input type="date" id="seenDate" value="${esc(it.seenAt || '')}" max="${today()}"></div>
+      ${it.nf ? `<div class="seen-row"><span class="lbl">En Netflix</span><span class="val">${esc([it.type === 'tv' && it.nf.eps ? `${it.nf.eps} ${it.nf.eps === 1 ? 'episodio' : 'episodios'}` : '', it.nf.first && it.nf.first !== it.seenAt ? 'desde ' + fmtDay(it.nf.first, { month: 'short', year: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'Importada del historial')}</span></div>` : ''}
       <div class="seen-row"><span class="lbl" id="rateLbl">Tu nota</span><div class="rate" role="group" aria-labelledby="rateLbl">${[1, 2, 3, 4, 5].map(i => `<button type="button" class="${i <= (it.rating || 0) ? 'on' : ''}" data-star="${i}" aria-label="${i} de 5" aria-pressed="${i === it.rating}">${SVG(IC.star)}</button>`).join('')}</div></div></div>
       <div class="d-actions"><button class="btn soft" type="button" data-act="rewant">${SVG(IC.undo)}Volver a ver</button><button class="btn ${conf ? 'danger' : 'gray'}" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Confirmar' : 'Quitar'}</button></div>`;
   }
@@ -913,7 +965,7 @@ function detailHTML() {
 
 /* ── Ajustes ── */
 function openSettings() {
-  current = null;
+  current = null; sheetMode = 'settings';
   openSheet(settingsHTML(), 'Ajustes');
 }
 function settingsHTML(msg) {
@@ -937,6 +989,7 @@ function settingsHTML(msg) {
       </ol></details>`;
   }
   html += `</section>`;
+  html += nfSettingsHTML();
   if (!PREVIEW) {
     html += `<section class="s-group"><h3>Respaldo</h3>
       <p>Tus listas se guardan solo en este dispositivo (${n} ${n === 1 ? 'título' : 'títulos'}). Guarda un respaldo de vez en cuando o para pasarlas a otro teléfono.</p>
@@ -958,7 +1011,7 @@ async function saveKey() {
     save();
     search.trending = null; search.trendErr = null; search.results = null; search.error = null;
     $('#sheetBody').innerHTML = settingsHTML({ ok: true, text: 'Listo: TMDB respondió correctamente.' });
-    renderView(); refreshProviders();
+    renderView(); refreshProviders(); nfRun();
   } catch (e) {
     state.key = e.code === 'net' ? val : prev; save();
     $('#sheetBody').innerHTML = settingsHTML({ ok: false, text: e.message });
@@ -1015,7 +1068,7 @@ function closeSheet() {
   root.classList.remove('open'); root.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('locked'); document.body.style.top = '';
   window.scrollTo(0, lockedY);
-  current = null;
+  current = null; sheetMode = null; nfDropAll = false;
   if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
 }
 (() => { // deslizar hacia abajo para cerrar
@@ -1043,10 +1096,14 @@ function toast(text) {
 
 /* ── Eventos ───────────────────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-open],[data-add],[data-tab],[data-act],[data-seg],[data-prov],[data-star]');
+  const t = e.target.closest('[data-open],[data-add],[data-tab],[data-act],[data-seg],[data-prov],[data-star],[data-nfprof],[data-nffind],[data-nfdrop],[data-nfpick]');
   if (!t) return;
   if (t.dataset.tab) { if (root.classList.contains('open')) closeSheet(); setTab(t.dataset.tab, t.dataset.tab === 'search'); return; }
+  if (t.dataset.nfpick) { nfPick(t.dataset.nfpick); return; }
   if (t.dataset.add) { addWant(t.dataset.add); return; }
+  if (t.dataset.nfprof && nfDraft) { nfDraft.profile = t.dataset.nfprof; $('#sheetBody').innerHTML = nfDraftHTML(); return; }
+  if (t.dataset.nffind) { nfFind(Number(t.dataset.nffind)); return; }
+  if (t.dataset.nfdrop) { nfState().pending.splice(Number(t.dataset.nfdrop), 1); save(); $('#sheetBody').innerHTML = nfPendingHTML(); renderView(); return; }
   if (t.dataset.open) { openDetail(t.dataset.open); return; }
   if (t.dataset.seg) { ui[t.dataset.seg] = t.dataset.val; renderView(); return; }
   if (t.hasAttribute('data-prov')) { ui.wantProv = t.dataset.prov; renderWant(); return; }
@@ -1061,6 +1118,16 @@ document.addEventListener('click', e => {
   if (act === 'savekey') { saveKey(); return; }
   if (act === 'showkey') { const i = $('#keyInput'); if (i) { const show = i.type === 'password'; i.type = show ? 'text' : 'password'; t.textContent = show ? 'Ocultar' : 'Mostrar'; } return; }
   if (act === 'export') { exportData(); return; }
+  if (act === 'nfopen') { nfOpen(); return; }
+  if (act === 'nfpending') { nfPendingOpen(); return; }
+  if (act === 'nfstart') { nfStart(); return; }
+  if (act === 'nfcancel') { nfDraft = null; nfOpen(); return; }
+  if (act === 'nfresume') { nfState().error = ''; nfRun(); nfPaint(); return; }
+  if (act === 'nfcancelpick') { search.pending = null; $('#q').value = ''; search.q = ''; search.results = null; nfPendingOpen(); renderSearch(); return; }
+  if (act === 'nfdropall') {
+    if (!nfDropAll) { nfDropAll = true; $('#sheetBody').innerHTML = nfPendingHTML(); setTimeout(() => { if (nfDropAll && sheetMode === 'nfpending') { nfDropAll = false; $('#sheetBody').innerHTML = nfPendingHTML(); } }, 3500); return; }
+    nfDropAll = false; nfState().pending = []; save(); $('#sheetBody').innerHTML = nfPendingHTML(); renderView(); return;
+  }
   if (act === 'resetdemo') { state = demoState(); save(); search.results = null; renderView(); closeSheet(); toast('Ejemplo restablecido'); return; }
   if (!current) return;
   const k = current.k;
@@ -1079,6 +1146,8 @@ document.addEventListener('change', e => {
     if (it && /^\d{4}-\d{2}-\d{2}$/.test(v)) { it.seenAt = v; save(); renderView(); }
   }
   if (e.target.id === 'importFile' && e.target.files && e.target.files[0]) importData(e.target.files[0]);
+  if (e.target.id === 'nfFile' && e.target.files && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ''; nfReadFile(f); }
+  if (e.target.id === 'nfMovies' && nfDraft) { nfDraft.movies = e.target.checked; const b = $('#sheetBody'), top = b.scrollTop; b.innerHTML = nfDraftHTML(); b.scrollTop = top; }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && root.classList.contains('open')) closeSheet();
@@ -1089,9 +1158,409 @@ $('#backdrop').addEventListener('click', closeSheet);
 $('#sheetClose').addEventListener('click', closeSheet);
 $('#btnSettings').addEventListener('click', openSettings);
 $('#q').addEventListener('input', onQuery);
+$('#seenFilter').addEventListener('input', e => { ui.seenQ = e.target.value; renderSeen(); });
+$('#seenFilterForm').addEventListener('submit', e => { e.preventDefault(); $('#seenFilter').blur(); });
 $('#searchForm').addEventListener('submit', e => { e.preventDefault(); clearTimeout(search.timer); const q = $('#q').value.trim(); if (q) { search.q = q; runSearch(q); } $('#q').blur(); });
 $('#qClear').addEventListener('click', () => { $('#q').value = ''; onQuery(); $('#q').focus(); });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshProviders(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshProviders(); nfRun(); } });
+
+/* ── Historial de Netflix: lectura del archivo ────────────────────────────────
+   Acepta los dos archivos que entrega Netflix:
+   · NetflixViewingHistory.csv (Actividad de visualización → Descargar todo): Title, Date
+   · ViewingActivity.csv (solicitud de datos personales): Profile Name, Start Time, Duration, …, Title, Supplemental Video Type
+   Agrupa los episodios en su serie y deja una fila por serie o película. */
+const nfFold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const nfPad = n => String(n).padStart(2, '0');
+const nfIso = d => d.getFullYear() + '-' + nfPad(d.getMonth() + 1) + '-' + nfPad(d.getDate());
+
+function nfCsvRows(text, delim) {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === delim) { row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(f); rows.push(row); row = []; f = '';
+    } else f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim()));
+}
+
+function nfDateParser(samples) {
+  let dmy = 0, mdy = 0;
+  for (const s of samples) {
+    const m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/.exec(String(s).trim());
+    if (!m) continue;
+    if (+m[1] > 12) dmy++; else if (+m[2] > 12) mdy++;
+  }
+  const order = mdy > dmy ? 'mdy' : 'dmy'; // en Chile Netflix usa día/mes/año
+  return s => {
+    s = String(s || '').trim();
+    let y, mo, d, m;
+    if ((m = /^(\d{4})[\/.\-](\d{1,2})[\/.\-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(s))) {
+      if (m[4] !== undefined) { // hora de inicio en UTC → fecha local
+        const dt = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
+        return isNaN(dt) ? '' : nfIso(dt);
+      }
+      y = +m[1]; mo = +m[2]; d = +m[3];
+    } else if ((m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/.exec(s))) {
+      [d, mo] = order === 'dmy' ? [+m[1], +m[2]] : [+m[2], +m[1]];
+      y = +m[3]; if (y < 100) y += 2000;
+    } else return '';
+    if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1997 || y > 2100) return '';
+    return y + '-' + nfPad(mo) + '-' + nfPad(d);
+  };
+}
+
+function nfSeconds(s) {
+  const p = String(s || '').trim().split(':').map(Number);
+  if (p.some(isNaN) || !p.length) return NaN;
+  return p.reduce((a, b) => a * 60 + b, 0);
+}
+
+// Partes del título que indican un episodio: "Temporada 2", "Parte 1", "Miniserie", "Capítulo 3"…
+const NF_MARK = /^(temporadas?|seasons?|parte|part|vol(?:umen|ume)?\.?|libro|book|cap[ií]tulo|chapter|episodios?|episodes?|ep\.|serie limitada|limited series|mini-?series?|colecci[oó]n|collection)(?=\s|\d|$)/i;
+const NF_STRONG = /^(temporadas?|seasons?|serie limitada|limited series|mini-?series?|episodios?|episodes?|ep\.)(?=\s|\d|$)/i;
+
+function nfClassify(title) {
+  const seg = String(title || '').split(/:\s+/).map(s => s.trim()).filter(Boolean);
+  for (let i = 1; i < seg.length; i++) {
+    // "Kill Bill: Volumen 1" o "Dune: Parte dos" son películas: la marca débil al final no basta
+    if (NF_MARK.test(seg[i]) && (NF_STRONG.test(seg[i]) || i < seg.length - 1)) {
+      const name = seg.slice(0, i);
+      // "Stranger Things: Stranger Things 4: Capítulo uno" → "Stranger Things"
+      while (name.length > 1 && nfFold(name[name.length - 1]).startsWith(nfFold(name[0]))) name.pop();
+      return { name: name.join(': '), kind: 'tv', ep: seg.slice(i).join(': ') };
+    }
+  }
+  return { name: seg.join(': '), kind: 'movie', ep: '' };
+}
+
+function nfParse(text) {
+  text = String(text || '').replace(/^﻿/, '');
+  const nl = text.search(/\r|\n/);
+  const firstLine = nl < 0 ? text : text.slice(0, nl);
+  const delim = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ';' : (firstLine.includes('\t') && !firstLine.includes(',') ? '\t' : ',');
+  const rows = nfCsvRows(text, delim);
+  if (rows.length < 2) throw new Error('empty');
+  const head = rows[0].map(nfFold);
+  const col = (...names) => head.findIndex(h => names.includes(h));
+  const iT = col('title', 'titulo', 'nombre');
+  if (iT < 0) throw new Error('nocols');
+  const iStart = col('start time', 'hora de inicio');
+  const iDate = iStart >= 0 ? iStart : col('date', 'fecha');
+  const iProf = col('profile name', 'nombre del perfil', 'perfil');
+  const iSup = col('supplemental video type');
+  const iDur = col('duration', 'duracion');
+  const body = rows.slice(1);
+  const parseDate = nfDateParser(iDate >= 0 ? body.slice(0, 800).map(r => r[iDate] || '') : []);
+  const plays = [], profiles = new Map();
+  let skipped = 0;
+  for (const r of body) {
+    const title = String(r[iT] || '').trim();
+    if (!title) continue;
+    if (iSup >= 0 && String(r[iSup] || '').trim()) { skipped++; continue; } // avances, recapitulaciones
+    if (iDur >= 0 && nfSeconds(r[iDur]) < 60) { skipped++; continue; } // vistas de unos segundos
+    const profile = iProf >= 0 ? String(r[iProf] || '').trim() : '';
+    plays.push({ title, date: iDate >= 0 ? parseDate(r[iDate]) : '', profile });
+    if (profile) profiles.set(profile, (profiles.get(profile) || 0) + 1);
+  }
+  return {
+    format: iStart >= 0 ? 'activity' : 'history', plays, skipped,
+    profiles: [...profiles].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
+  };
+}
+
+function nfGroup(plays) {
+  const map = new Map();
+  for (const p of plays) {
+    const c = nfClassify(p.title);
+    if (!c.name) continue;
+    const key = c.kind + '|' + nfFold(c.name);
+    let g = map.get(key);
+    if (!g) map.set(key, g = { name: c.name, kind: c.kind, first: '', last: '', plays: 0, eps: new Set() });
+    g.plays++;
+    g.eps.add(nfFold(c.ep || c.name));
+    if (p.date) { if (!g.first || p.date < g.first) g.first = p.date; if (p.date > g.last) g.last = p.date; }
+  }
+  return [...map.values()]
+    .map(g => ({ name: g.name, kind: g.kind, first: g.first, last: g.last, plays: g.plays, eps: g.kind === 'tv' ? g.eps.size : 0 }))
+    .sort((a, b) => b.last.localeCompare(a.last) || a.name.localeCompare(b.name));
+}
+
+/* ── Importar desde Netflix ───────────────────────────────────────────────────
+   El archivo se lee en el teléfono. Cada serie o película queda en una cola guardada,
+   que se identifica en TMDB de a poco (si se cierra la app, sigue al volver a abrirla). */
+let nfBusy = false;
+let nfDraft = null; // { parsed, profile, movies }
+const nfState = () => state.nf || (state.nf = { queue: [], pending: [], stats: null, error: '' });
+const nfDateMs = s => { const t = s ? new Date(s + 'T12:00:00').getTime() : NaN; return isNaN(t) ? Date.now() : t; };
+const nfMonth = s => s ? fmtDay(s.slice(0, 7) + '-01', { month: 'short', year: 'numeric' }) : '';
+const nfMin = (a, b) => !a ? b : !b ? a : (a < b ? a : b);
+const nfPlural = (n, one, many) => `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
+
+/* Bloque de Ajustes y hoja propia */
+function nfSettingsHTML() {
+  if (PREVIEW) return `<section class="s-group"><h3>Historial de Netflix</h3><p>En la app instalada puedes importar el archivo de tu actividad de Netflix y todo lo que viste queda en Vistos.</p></section>`;
+  return `<section class="s-group" id="nfGroup">${nfGroupInner()}</section>`;
+}
+function nfGroupInner(msg) {
+  const nf = nfState();
+  let h = `<h3>Historial de Netflix</h3>`;
+  if (nf.queue.length) {
+    const total = (nf.stats && nf.stats.total) || nf.queue.length;
+    const done = total - nf.queue.length;
+    h += `<p>${nfBusy ? 'Identificando cada título en TMDB' : 'Importación en pausa'}: <b>${done.toLocaleString('es-CL')} de ${total.toLocaleString('es-CL')}</b>.</p>
+      <div class="bar" role="progressbar" aria-label="Avance de la importación" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><i style="width:${Math.round(done / Math.max(1, total) * 100)}%"></i></div>`;
+    if (!state.key) h += `<p class="msg err">Conecta TMDB en Ajustes para continuar.</p>`;
+    else if (nf.error) h += `<p class="msg err">${esc(nf.error)}</p><div class="btn-row"><button class="btn soft small" type="button" data-act="nfresume">${SVG(IC.retry)}Reintentar</button></div>`;
+    else h += `<p class="hint">Puedes cerrar esta hoja. La importación sigue mientras la app esté abierta.</p>`;
+    return h;
+  }
+  const st = nf.stats;
+  if (st && st.finishedAt) {
+    h += `<span class="status ok">${SVG(IC.check)}${nfPlural(st.added, 'título agregado', 'títulos agregados')} a Vistos</span>`;
+    const extra = [];
+    if (st.merged) extra.push(`${nfPlural(st.merged, 'ya estaba', 'ya estaban')} en tus listas`);
+    if (nf.pending.length) extra.push(`${nfPlural(nf.pending.length, 'quedó', 'quedaron')} sin identificar`);
+    if (extra.length) h += `<p>${cap(extra.join(' y '))}.</p>`;
+  } else {
+    h += `<p>Importa el archivo de tu actividad de Netflix y todo lo que viste quedará en Vistos, con la fecha de la última vez que lo viste.</p>`;
+  }
+  if (msg) h += `<p class="msg err" role="status">${esc(msg)}</p>`;
+  if (!state.key) h += `<p class="msg err">Primero conecta TMDB, más arriba.</p>`;
+  h += `<div class="btn-row">`;
+  if (nf.pending.length) h += `<button class="btn soft small" type="button" data-act="nfpending">${SVG(IC.search)}Revisar ${nf.pending.length} sin identificar</button>`;
+  h += `<label class="btn ${st ? 'gray' : 'tint'} small file-btn">${SVG(IC.inbox)}${st ? 'Importar otro archivo' : 'Importar archivo de Netflix'}<input type="file" id="nfFile" accept=".csv,text/csv,text/comma-separated-values,text/plain"></label></div>`;
+  h += `<details class="how"${st ? '' : ' open'}><summary>¿Cómo descargo el archivo?</summary><ol>
+    <li>En Safari, entra a <a href="https://www.netflix.com/viewingactivity" target="_blank" rel="noopener">netflix.com/viewingactivity</a> con tu perfil.</li>
+    <li>Baja hasta el final y toca <b>Descargar todo</b>. Queda en Archivos → Descargas como NetflixViewingHistory.csv.</li>
+    <li>Vuelve aquí, toca Importar y elige ese archivo.</li></ol></details>`;
+  return h;
+}
+function nfSheetHTML(msg) {
+  const nf = nfState();
+  let h = `<h2 class="s-title">Importar desde Netflix</h2><section class="s-group" id="nfGroup">${nfGroupInner(msg)}</section>`;
+  if (nf.stats && nf.stats.finishedAt && !nf.queue.length) h += `<button class="btn tint block" type="button" data-tab="seen">${SVG(IC.checkCircle)}Ver Vistos</button>`;
+  return h;
+}
+function nfOpen() { current = null; sheetMode = 'nf'; openSheet(nfSheetHTML(), 'Importar desde Netflix'); }
+function nfPaint() {
+  if (!root.classList.contains('open')) return;
+  if (sheetMode === 'nf') { $('#sheetBody').innerHTML = nfSheetHTML(); return; }
+  const g = $('#nfGroup'); if (g && sheetMode === 'settings') g.innerHTML = nfGroupInner();
+}
+
+/* Paso 1: leer el archivo y mostrar el resumen */
+async function nfReadFile(file) {
+  let parsed;
+  try { parsed = nfParse(await file.text()); }
+  catch (e) { nfShowError('Ese archivo no parece ser el historial de Netflix. Usa el CSV que se descarga desde Actividad de visualización.'); return; }
+  if (!parsed.plays.length) { nfShowError('El archivo no tiene reproducciones.'); return; }
+  nfDraft = { parsed, profile: parsed.profiles.length > 1 ? null : '*', movies: true };
+  current = null; sheetMode = 'nfdraft';
+  openSheet(nfDraftHTML(), 'Importar desde Netflix');
+  $('#sheetBody').scrollTop = 0;
+}
+function nfShowError(msg) {
+  if (sheetMode === 'nf') $('#sheetBody').innerHTML = nfSheetHTML(msg);
+  else { const g = $('#nfGroup'); if (g) g.innerHTML = nfGroupInner(msg); else toast(msg); }
+}
+function nfDraftGroups() {
+  const { parsed, profile } = nfDraft;
+  const plays = profile === '*' || !profile ? parsed.plays : parsed.plays.filter(p => p.profile === profile);
+  return nfGroup(plays);
+}
+function nfDraftHTML() {
+  const { parsed, profile, movies } = nfDraft;
+  let h = `<h2 class="s-title">Importar desde Netflix</h2>`;
+  if (parsed.profiles.length > 1) {
+    h += `<section class="s-group"><h3>¿Cuál es tu perfil?</h3><p>El archivo trae la actividad de varios perfiles de la cuenta.</p>
+      <div class="pv-list">${parsed.profiles.map(p => `<button class="chip plain" type="button" data-nfprof="${esc(p.name)}" aria-pressed="${profile === p.name}">${esc(p.name)} <span class="n">${p.count.toLocaleString('es-CL')}</span></button>`).join('')}
+      <button class="chip plain" type="button" data-nfprof="*" aria-pressed="${profile === '*'}">Todos</button></div></section>`;
+    if (profile === null) return h + `<button class="btn gray block" type="button" data-act="nfcancel">Cancelar</button>`;
+  }
+  const groups = nfDraftGroups();
+  const tv = groups.filter(g => g.kind === 'tv'), mv = groups.filter(g => g.kind === 'movie');
+  const firsts = groups.map(g => g.first).filter(Boolean).sort();
+  const lasts = groups.map(g => g.last).filter(Boolean).sort();
+  const plays = groups.reduce((a, g) => a + g.plays, 0);
+  const n = tv.length + (movies ? mv.length : 0);
+  h += `<section class="s-group">
+    <div class="nf-sum"><div><b>${tv.length.toLocaleString('es-CL')}</b><span>${tv.length === 1 ? 'serie' : 'series'}</span></div><div><b>${mv.length.toLocaleString('es-CL')}</b><span>${mv.length === 1 ? 'película' : 'películas'}</span></div></div>
+    <p>${nfPlural(plays, 'reproducción', 'reproducciones')}${firsts.length ? `, desde ${esc(nfMonth(firsts[0]))} hasta ${esc(nfMonth(lasts[lasts.length - 1]))}` : ''}. Cada título quedará en Vistos con la fecha de la última vez que lo viste.</p>
+    ${mv.length ? `<label class="switch-row" for="nfMovies"><span>Incluir películas</span><input type="checkbox" id="nfMovies" role="switch" ${movies ? 'checked' : ''}><i aria-hidden="true"></i></label>` : ''}
+  </section>`;
+  const recent = groups.filter(g => movies || g.kind === 'tv').slice(0, 6);
+  if (recent.length) {
+    h += `<section class="d-sec"><h3>Lo más reciente</h3><div class="list">${recent.map(g => `<div class="item"><div class="item-main static">${posterHTML({ title: g.name }, 'sm')}<div class="info"><div class="title">${esc(g.name)}</div><div class="sub"><span>${esc(nfLine(g))}</span></div></div></div></div>`).join('')}</div></section>`;
+  }
+  h += `<div class="d-actions"><button class="btn tint wide" type="button" data-act="nfstart" ${n ? '' : 'disabled'}>${SVG(IC.check)}Agregar ${nfPlural(n, 'título', 'títulos')} a Vistos</button>
+    <button class="btn gray wide" type="button" data-act="nfcancel">Cancelar</button></div>`;
+  return h;
+}
+function nfLine(g) {
+  const parts = [typeLbl(g.kind)];
+  if (g.kind === 'tv' && g.eps) parts.push(nfPlural(g.eps, 'episodio', 'episodios'));
+  if (g.last) parts.push(fmtDay(g.last));
+  return parts.join(' · ');
+}
+
+/* Paso 2: poner los títulos en la cola y procesarla */
+function nfStart() {
+  if (!nfDraft) return;
+  const groups = nfDraftGroups().filter(g => nfDraft.movies || g.kind === 'tv');
+  const nf = nfState();
+  const same = (a, b) => a.kind === b.kind && nfFold(a.name) === nfFold(b.name);
+  nf.pending = nf.pending.filter(p => !groups.some(g => same(g, p)));
+  nf.queue = groups;
+  nf.stats = { total: groups.length, added: 0, merged: 0, unmatched: 0, run: Date.now() };
+  nf.error = '';
+  nfDraft = null;
+  save();
+  sheetMode = 'nf'; $('#sheetBody').innerHTML = nfSheetHTML(); $('#sheetBody').scrollTop = 0;
+  nfRun();
+}
+async function nfSearchList(path, query) {
+  const r = await tmdb(path, { query, language: LANG, include_adult: 'false', page: '1' });
+  const type = path === '/search/tv' ? 'tv' : path === '/search/movie' ? 'movie' : '';
+  return (r.results || []).filter(x => type || x.media_type === 'movie' || x.media_type === 'tv').map(x => norm(x, type || x.media_type));
+}
+const nfWords = s => nfFold(s).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+function nfBest(list, query) {
+  const q = nfWords(query), qt = new Set(q.split(' ').filter(Boolean));
+  let best = null, bestScore = 0;
+  list.slice(0, 10).forEach((r, i) => {
+    for (const t of [r.title, r.orig]) {
+      const w = nfWords(t); if (!w) continue;
+      let s;
+      if (w === q) s = 100;
+      else if (q.length > 3 && (w.startsWith(q + ' ') || q.startsWith(w + ' '))) s = 60;
+      else {
+        const tt = new Set(w.split(' ')); let inter = 0;
+        for (const x of qt) if (tt.has(x)) inter++;
+        s = inter / Math.max(qt.size, tt.size) * 60;
+      }
+      s -= i * 1.5; // a igual parecido, gana el más relevante para TMDB
+      if (s > bestScore) { bestScore = s; best = r; }
+    }
+  });
+  return bestScore >= 34 ? best : null;
+}
+async function nfResolve(e) {
+  const q = e.name;
+  const plain = q.replace(/\s*[\(\[][^\)\]]*[\)\]]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+  const tries = e.kind === 'tv' ? [['/search/tv', q], ['/search/multi', q]] : [['/search/movie', q], ['/search/multi', q]];
+  if (plain && plain !== q) tries.push([e.kind === 'tv' ? '/search/tv' : '/search/multi', plain]);
+  if (e.kind === 'movie' && q.includes(': ')) tries.push(['/search/tv', q.split(': ')[0]]); // episodio suelto de una serie sin "Temporada"
+  for (const [path, query] of tries) {
+    const hit = nfBest(await nfSearchList(path, query), query);
+    if (hit) return hit;
+  }
+  return null;
+}
+function nfApply(e, r, run) {
+  const nf = nfState(), st = nf.stats || (nf.stats = { total: 0, added: 0, merged: 0, unmatched: 0, run });
+  if (!r) {
+    nf.pending.push({ name: e.name, kind: e.kind, first: e.first, last: e.last, plays: e.plays, eps: e.eps });
+    st.unmatched++; return;
+  }
+  const k = keyOf(r);
+  const eps = r.type === 'tv' ? Math.max(1, e.kind === 'tv' ? e.eps : 1) : 0;
+  const it = state.items[k];
+  if (it) {
+    const n = it.nf;
+    if (n && n.run === run) { // otro nombre de Netflix para el mismo título, en esta misma importación
+      n.eps += eps; n.plays += e.plays;
+    } else {
+      it.nf = { eps: Math.max(eps, n ? n.eps : 0), plays: Math.max(e.plays, n ? n.plays : 0), first: nfMin(n && n.first, e.first), run };
+      if (!(it.src === 'netflix' && it.nfRun === run)) st.merged++;
+    }
+    it.nf.first = nfMin(it.nf.first, e.first);
+    if (it.status === 'seen' && e.last && (!it.seenAt || e.last > it.seenAt)) it.seenAt = e.last;
+    return;
+  }
+  state.items[k] = {
+    id: r.id, type: r.type, title: r.title, year: r.year, poster: r.poster, status: 'seen',
+    seenAt: e.last || today(), addedAt: nfDateMs(e.last), prov: null, provAt: 0,
+    nf: { eps, plays: e.plays, first: e.first, run }, src: 'netflix', nfRun: run,
+  };
+  st.added++;
+}
+async function nfRun() {
+  const nf = state.nf;
+  if (nfBusy || PREVIEW || !state.key || !nf || !nf.queue.length) return;
+  nfBusy = true; nf.error = ''; nfPaint();
+  const run = nf.stats ? nf.stats.run : Date.now();
+  let lastPaint = Date.now();
+  while (nf.queue.length) {
+    const batch = nf.queue.slice(0, 4);
+    const out = await Promise.all(batch.map(e => nfResolve(e).then(r => ({ e, r }), err => ({ e, err }))));
+    let stop = false, slow = false;
+    for (const { e, r, err } of out) {
+      if (err && (err.code === 'auth' || err.code === 'net' || err.code === 'nokey')) { nf.error = err.message; stop = true; continue; }
+      if (err && err.code === 'rate') { slow = true; continue; } // TMDB pide ir más lento: queda en la cola
+      const i = nf.queue.indexOf(e); if (i >= 0) nf.queue.splice(i, 1);
+      nfApply(e, err ? null : r, run);
+    }
+    save();
+    if (stop) break;
+    if (Date.now() - lastPaint > 800) {
+      lastPaint = Date.now(); nfPaint();
+      if (state.tab === 'seen') renderSeen();
+    }
+    await sleep(slow ? 2500 : 120);
+  }
+  const finished = !nf.queue.length;
+  if (finished && nf.stats) nf.stats.finishedAt = Date.now();
+  nfBusy = false; save(); nfPaint(); renderView();
+  if (finished && nf.stats) toast(`Listo: ${nfPlural(nf.stats.added, 'título nuevo', 'títulos nuevos')} en Vistos`);
+}
+
+/* Títulos que no se pudieron identificar */
+function nfPendingOpen() { current = null; sheetMode = 'nfpending'; openSheet(nfPendingHTML(), 'Sin identificar'); }
+function nfPendingHTML() {
+  const p = nfState().pending;
+  let h = `<h2 class="s-title">Sin identificar</h2>`;
+  if (!p.length) return h + emptyHTML(IC.checkCircle, 'No queda nada pendiente', 'Todos los títulos de tu historial de Netflix ya están en tus listas.');
+  h += `<p class="how">No encontré estos títulos en TMDB con el nombre que usa Netflix. Toca la lupa para elegir el correcto o descártalos.</p>`;
+  h += `<div class="list">${p.map((e, i) => `<div class="item"><div class="item-main static">${posterHTML({ title: e.name }, 'sm')}<div class="info"><div class="title">${esc(e.name)}</div><div class="sub"><span>${esc(nfLine(e))}</span></div></div></div>
+    <button class="item-act" type="button" data-nffind="${i}" aria-label="Buscar ${esc(e.name)}">${SVG(IC.search)}</button>
+    <button class="item-act gray" type="button" data-nfdrop="${i}" aria-label="Descartar ${esc(e.name)}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>`).join('')}</div>`;
+  h += `<button class="btn ${nfDropAll ? 'danger' : 'gray'} block" type="button" data-act="nfdropall">${SVG(IC.trash)}${nfDropAll ? 'Toca de nuevo para descartar todos' : 'Descartar todos'}</button>`;
+  return h;
+}
+let nfDropAll = false;
+function nfFind(i) {
+  const e = nfState().pending[i]; if (!e) return;
+  closeSheet();
+  search.pending = e;
+  setTab('search');
+  $('#q').value = e.name;
+  search.q = e.name; search.results = null; search.error = null;
+  runSearch(e.name);
+}
+function nfPick(k) {
+  const e = search.pending; if (!e) return;
+  const b = baseOf(k); if (!b) return;
+  const nf = nfState();
+  const i = nf.pending.indexOf(e); if (i >= 0) nf.pending.splice(i, 1);
+  nfApply(e, b, 'manual-' + Date.now());
+  const it = state.items[k];
+  if (it && it.status !== 'seen') { it.status = 'seen'; it.seenAt = e.last || today(); }
+  search.pending = null;
+  save();
+  toast(`${b.title} quedó en Vistos`);
+  $('#q').value = ''; search.q = ''; search.results = null;
+  if (nf.pending.length) { renderSearch(); nfPendingOpen(); }
+  else setTab('seen');
+}
+
 
 /* ── Ejemplo para la vista previa ──────────────────────────────────────────── */
 const PV = { netflix: { n: 'Netflix', l: '' }, disney: { n: 'Disney+', l: '' }, atvp: { n: 'Apple TV+', l: '' }, hbo: { n: 'HBO Max', l: '' }, atv: { n: 'Apple TV', l: '' }, gplay: { n: 'Google Play', l: '' }, mubi: { n: 'MUBI', l: '' } };
@@ -1141,6 +1610,7 @@ let state = load();
 if (PREVIEW) $('#previewNote').hidden = false;
 setTab(state.tab || 'want');
 refreshProviders();
+nfRun();
 if (!PREVIEW && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
