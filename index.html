@@ -771,13 +771,13 @@ function renderSeen() {
   let html = '';
   if (nf && nf.queue && nf.queue.length) {
     const total = (nf.stats && nf.stats.total) || nf.queue.length;
-    html += `<div class="note">${SVG(IC.inbox)}<p><b>Importando desde Netflix:</b> ${(total - nf.queue.length).toLocaleString('es-CL')} de ${total.toLocaleString('es-CL')}. <button type="button" data-act="nfopen">Ver avance</button></p></div>`;
+    html += `<div class="note">${SVG(IC.inbox)}<p><b>Importando historial:</b> ${(total - nf.queue.length).toLocaleString('es-CL')} de ${total.toLocaleString('es-CL')}. <button type="button" data-act="nfopen">Ver avance</button></p></div>`;
   } else if (nf && nf.pending && nf.pending.length) {
-    html += `<div class="note">${SVG(IC.search)}<p>${nf.pending.length === 1 ? 'Un título' : nf.pending.length + ' títulos'} de Netflix sin identificar. <button type="button" data-act="nfpending">Revisar</button></p></div>`;
+    html += `<div class="note">${SVG(IC.search)}<p>${nf.pending.length === 1 ? 'Un título' : nf.pending.length + ' títulos'} del historial sin identificar. <button type="button" data-act="nfpending">Revisar</button></p></div>`;
   }
   if (!all.length) {
-    el.innerHTML = html + emptyHTML(IC.checkCircle, 'Aún no marcas nada como visto', 'Cuando termines una serie o película, márcala como vista desde su ficha. También puedes traer todo tu historial de Netflix.',
-      PREVIEW ? '' : `<button class="btn soft" type="button" data-act="nfopen">${SVG(IC.inbox)}Importar desde Netflix</button>`);
+    el.innerHTML = html + emptyHTML(IC.checkCircle, 'Aún no marcas nada como visto', 'Cuando termines una serie o película, márcala como vista desde su ficha. También puedes traer tu historial de Netflix o Prime Video.',
+      PREVIEW ? '' : `<button class="btn soft" type="button" data-act="nfopen">${SVG(IC.inbox)}Importar historial</button>`);
     return;
   }
   let list = ui.seenType === 'all' ? all : all.filter(it => it.type === ui.seenType);
@@ -806,7 +806,7 @@ function renderSearch() {
   const out = $('#searchOut');
   $('#qClear').hidden = !search.q;
   if (!PREVIEW && !state.key) { out.innerHTML = onboardHTML(); return; }
-  const pend = search.pending ? `<div class="note">${SVG(IC.inbox)}<p>Elige cuál es <b>${esc(nfLabel(search.pending))}</b>${search.pending.name ? '' : ` (vista entre ${esc(nfMonth(search.pending.first))} y ${esc(nfMonth(search.pending.last))})`} de tu historial de Netflix y toca ${SVG(IC.check, 'i inline')}. <button type="button" data-act="nfcancelpick">Cancelar</button></p></div>` : '';
+  const pend = search.pending ? `<div class="note">${SVG(IC.inbox)}<p>Elige cuál es <b>${esc(nfLabel(search.pending))}</b>${search.pending.name ? '' : ` (vista entre ${esc(nfMonth(search.pending.first))} y ${esc(nfMonth(search.pending.last))})`} de tu historial y toca ${SVG(IC.check, 'i inline')}. <button type="button" data-act="nfcancelpick">Cancelar</button></p></div>` : '';
   if (search.q) {
     if (search.loading && !search.results) { out.innerHTML = pend + skelHTML(5); return; }
     if (search.error) { out.innerHTML = pend + errorHTML(search.error); return; }
@@ -941,7 +941,7 @@ function detailHTML() {
       <button class="btn ${conf ? 'danger' : 'gray'} wide" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Toca de nuevo para quitarla' : 'Quitar de Quiero ver'}</button></div>`;
   } else {
     html += `<div class="seen-box"><div class="seen-row"><label for="seenDate">Vista el</label><input type="date" id="seenDate" value="${esc(it.seenAt || '')}" max="${today()}"></div>
-      ${it.nf ? `<div class="seen-row"><span class="lbl">En Netflix</span><span class="val">${esc([it.type === 'tv' && it.nf.eps ? `${it.nf.eps} ${it.nf.eps === 1 ? 'episodio' : 'episodios'}` : '', it.nf.first && it.nf.first !== it.seenAt ? 'desde ' + fmtDay(it.nf.first, { month: 'short', year: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'Importada del historial')}</span></div>` : ''}
+      ${it.nf ? `<div class="seen-row"><span class="lbl">En ${esc(it.nf.src || 'Netflix')}</span><span class="val">${esc([it.type === 'tv' && it.nf.eps ? `${it.nf.eps} ${it.nf.eps === 1 ? 'episodio' : 'episodios'}` : '', it.nf.first && it.nf.first !== it.seenAt ? 'desde ' + fmtDay(it.nf.first, { month: 'short', year: 'numeric' }) : ''].filter(Boolean).join(' · ') || 'Importada del historial')}</span></div>` : ''}
       <div class="seen-row"><span class="lbl" id="rateLbl">Tu nota</span><div class="rate" role="group" aria-labelledby="rateLbl">${[1, 2, 3, 4, 5].map(i => `<button type="button" class="${i <= (it.rating || 0) ? 'on' : ''}" data-star="${i}" aria-label="${i} de 5" aria-pressed="${i === it.rating}">${SVG(IC.star)}</button>`).join('')}</div></div></div>
       <div class="d-actions"><button class="btn soft" type="button" data-act="rewant">${SVG(IC.undo)}Volver a ver</button><button class="btn ${conf ? 'danger' : 'gray'}" type="button" data-act="remove">${SVG(IC.trash)}${conf ? 'Confirmar' : 'Quitar'}</button></div>`;
   }
@@ -1271,8 +1271,57 @@ function nfDecode(bytes) {
   return nfFixMojibake(text);
 }
 
+/* ── Prime Video: texto copiado de la página Historial de visualización ──
+   Cada día trae una fecha ("25 de octubre de 2025") y debajo sus títulos: una serie va seguida de
+   "Episodios vistos" y una película de "Eliminar película del historial de visualización". */
+const NF_MONTHS = { enero: 1, febrero: 2, marzo: 3, abril: 4, mayo: 5, junio: 6, julio: 7, agosto: 8, septiembre: 9, setiembre: 9, octubre: 10, noviembre: 11, diciembre: 12,
+  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12 };
+const NF_ORD = { primera: 1, segunda: 2, tercera: 3, cuarta: 4, quinta: 5, sexta: 6, septima: 7, octava: 8, novena: 9, decima: 10, uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6 };
+function nfLongDate(l) {
+  let m = /^(\d{1,2}) de ([a-záéíóú]+) de (\d{4})$/i.exec(l), d, mo, y;
+  if (m) { d = +m[1]; mo = NF_MONTHS[nfFold(m[2])]; y = +m[3]; }
+  else if ((m = /^([a-z]+) (\d{1,2}),? (\d{4})$/i.exec(l))) { d = +m[2]; mo = NF_MONTHS[nfFold(m[1])]; y = +m[3]; }
+  else return null;
+  return mo && d >= 1 && d <= 31 ? y + '-' + nfPad(mo) + '-' + nfPad(d) : null;
+}
+// "This Is Us - Season 4", "La Jauría Temporada 2", "Amor Moderno - Segunda Temporada" → nombre y número de temporada
+function nfSeason(title) {
+  const t = nfClean(title);
+  let m = /^(.+?)[\s\-–—:,]*\b(?:season|temporada|temp\.)\s*0*(\d+)$/i.exec(t);
+  if (m) return { name: m[1].trim(), season: +m[2] };
+  m = /^(.+?)[\s\-–—:,]*\b(primera|segunda|tercera|cuarta|quinta|sexta|s[eé]ptima|octava|novena|d[eé]cima)\s+temporada$/i.exec(t);
+  if (m) return { name: m[1].trim(), season: NF_ORD[nfFold(m[2])] || 0 };
+  m = /^(.+?)[\s\-–—:,]*\btemporada\s+(uno|dos|tres|cuatro|cinco|seis)$/i.exec(t);
+  if (m) return { name: m[1].trim(), season: NF_ORD[nfFold(m[2])] || 0 };
+  return { name: t, season: 0 };
+}
+const NF_PV_SERIES = /^(episodios vistos|watched episodes|eliminar episodios del historial.*|remove episodes from watch history.*)$/i;
+const NF_PV_MOVIE = /^(eliminar pel[ií]cula del historial.*|remove (movie|video) from watch history.*)$/i;
+const nfIsPrimeText = t => /eliminar (episodios|pel[ií]cula) del historial|remove (episodes|movie) from watch history/i.test(t.slice(0, 20000));
+function nfParsePrimeText(text) {
+  const lines = String(text).split(/\r\n|\r|\n/).map(nfClean);
+  const plays = [];
+  let date = '';
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (!l) continue;
+    const d = nfLongDate(l);
+    if (d) { date = d; continue; }
+    if (NF_PV_SERIES.test(l) || NF_PV_MOVIE.test(l)) continue;
+    let j = i + 1; while (j < lines.length && !lines[j]) j++;
+    const next = lines[j] || '';
+    const kind = NF_PV_SERIES.test(next) ? 'tv' : NF_PV_MOVIE.test(next) ? 'movie' : '';
+    if (!kind) continue; // texto de la página que no es un título
+    if (/^(episodio|episode) 0\b/i.test(l)) continue; // avances, resúmenes y extras
+    if (kind === 'tv') { const s = nfSeason(l); plays.push({ title: s.name, season: s.season, date, kind, src: 'Prime Video' }); }
+    else plays.push({ title: l, season: 0, date, kind, src: 'Prime Video' });
+  }
+  return plays;
+}
+
 function nfParse(text) {
   text = String(text || '').replace(/^﻿/, '');
+  if (nfIsPrimeText(text)) return { format: 'prime', plays: nfParsePrimeText(text), skipped: 0, profiles: [] };
   const nl = text.search(/\r|\n/);
   const firstLine = nl < 0 ? text : text.slice(0, nl);
   const delim = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ';' : (firstLine.includes('\t') && !firstLine.includes(',') ? '\t' : ',');
@@ -1287,6 +1336,8 @@ function nfParse(text) {
   const iProf = col('profile name', 'nombre del perfil', 'perfil');
   const iSup = col('supplemental video type');
   const iDur = col('duration', 'duracion');
+  const iType = col('tipo', 'type');
+  const iSrc = col('plataforma', 'platform', 'servicio');
   const body = rows.slice(1);
   const parseDate = nfDateParser(iDate >= 0 ? body.slice(0, 800).map(r => r[iDate] || '') : []);
   const plays = [], profiles = new Map();
@@ -1297,7 +1348,9 @@ function nfParse(text) {
     if (iSup >= 0 && String(r[iSup] || '').trim()) { skipped++; continue; } // avances, recapitulaciones
     if (iDur >= 0 && nfSeconds(r[iDur]) < 60) { skipped++; continue; } // vistas de unos segundos
     const profile = iProf >= 0 ? nfClean(r[iProf]) : '';
-    plays.push({ title, date: iDate >= 0 ? parseDate(r[iDate]) : '', profile });
+    const tv = iType >= 0 ? nfFold(r[iType]) : '';
+    const kind = !tv ? '' : /^(serie|series|tv|show|programa)/.test(tv) ? 'tv' : /^(pelicula|movie|film|documental)/.test(tv) ? 'movie' : '';
+    plays.push({ title, date: iDate >= 0 ? parseDate(r[iDate]) : '', profile, kind, src: (iSrc >= 0 && nfClean(r[iSrc])) || 'Netflix' });
     if (profile) profiles.set(profile, (profiles.get(profile) || 0) + 1);
   }
   return {
@@ -1307,7 +1360,8 @@ function nfParse(text) {
 }
 
 function nfGroup(plays) {
-  const cls = plays.map(p => ({ p, c: nfClassify(p.title) }));
+  // Si el archivo ya dice qué es cada título (Prime Video o un CSV con columna Tipo), no se adivina
+  const cls = plays.map(p => ({ p, c: p.kind ? { name: p.kind === 'tv' ? nfSeason(p.title).name : nfClean(p.title), kind: p.kind, ep: '', segs: [], explicit: true } : nfClassify(p.title) }));
   // Series reconocidas por "Temporada", "Miniserie", etc.
   const known = new Map();
   for (const { c } of cls) if (c.kind === 'tv' && c.name) known.set(nfFold(c.name), c.name);
@@ -1344,8 +1398,11 @@ function nfGroup(plays) {
   for (const { p, c } of cls.map(x => x)) {
     const key = c.kind + '|' + nfFold(c.name);
     let g = map.get(key);
-    if (!g) map.set(key, g = { name: c.name, kind: c.kind, first: '', last: '', plays: 0, eps: new Set(), weak: true, alts: c.alts || [], members: new Map() });
+    if (!g) map.set(key, g = { name: c.name, kind: c.kind, first: '', last: '', plays: 0, eps: new Set(), weak: true, alts: c.alts || [], members: new Map(), names: new Map(), srcs: new Set(), explicit: false });
     if (!c.weak) g.weak = false;
+    if (c.explicit) g.explicit = true;
+    g.names.set(c.name, (g.names.get(c.name) || 0) + 1); // "This Is US" y "This Is Us": gana la forma más usada
+    g.srcs.add(p.src || 'Netflix');
     g.plays++;
     g.eps.add(nfFold(c.ep || c.name));
     if (p.date) { if (!g.first || p.date < g.first) g.first = p.date; if (p.date > g.last) g.last = p.date; }
@@ -1359,14 +1416,17 @@ function nfGroup(plays) {
   }
   return [...map.values()]
     .map(g => {
-      const out = { name: g.name, kind: g.kind, first: g.first, last: g.last, plays: g.plays, eps: g.kind === 'tv' ? g.eps.size : 0 };
+      const name = [...g.names].sort((a, b) => b[1] - a[1])[0][0];
+      // Prime Video anota días, no episodios: ahí no se cuenta la cantidad de episodios
+      const out = { name, kind: g.kind, first: g.first, last: g.last, plays: g.plays, eps: g.kind === 'tv' && !g.explicit ? g.eps.size : 0, src: [...g.srcs].join(' y ') };
+      if (g.explicit) out.explicit = true;
       if (g.kind === 'tv' && g.weak && g.members.size) { out.weak = true; out.alts = g.alts; out.members = [...g.members.values()]; }
       return out;
     })
     .sort((a, b) => b.last.localeCompare(a.last) || a.name.localeCompare(b.name));
 }
 
-/* ── Importar desde Netflix ───────────────────────────────────────────────────
+/* ── Importar historial (Netflix y Prime Video) ───────────────────────────────────────────────────
    El archivo se lee en el teléfono. Cada serie o película queda en una cola guardada,
    que se identifica en TMDB de a poco (si se cierra la app, sigue al volver a abrirla). */
 let nfBusy = false;
@@ -1375,17 +1435,18 @@ const nfState = () => state.nf || (state.nf = { queue: [], pending: [], stats: n
 const nfDateMs = s => { const t = s ? new Date(s + 'T12:00:00').getTime() : NaN; return isNaN(t) ? Date.now() : t; };
 const nfMonth = s => s ? fmtDay(s.slice(0, 7) + '-01', { month: 'short', year: 'numeric' }) : '';
 const nfDay = s => !s || s > today() ? today() : s; // Netflix anota en hora UTC: nunca una fecha futura
+const nfSrcJoin = (...l) => [...new Set(l.filter(Boolean).join(' y ').split(' y ').filter(Boolean))].join(' y ');
 const nfMin = (a, b) => !a ? b : !b ? a : (a < b ? a : b);
 const nfPlural = (n, one, many) => `${n.toLocaleString('es-CL')} ${n === 1 ? one : many}`;
 
 /* Bloque de Ajustes y hoja propia */
 function nfSettingsHTML() {
-  if (PREVIEW) return `<section class="s-group"><h3>Historial de Netflix</h3><p>En la app instalada puedes importar el archivo de tu actividad de Netflix y todo lo que viste queda en Vistos.</p></section>`;
+  if (PREVIEW) return `<section class="s-group"><h3>Historial de Netflix y Prime Video</h3><p>En la app instalada puedes importar el historial de Netflix o de Prime Video y todo lo que viste queda en Vistos.</p></section>`;
   return `<section class="s-group" id="nfGroup">${nfGroupInner()}</section>`;
 }
 function nfGroupInner(msg) {
   const nf = nfState();
-  let h = `<h3>Historial de Netflix</h3>`;
+  let h = `<h3>Historial de Netflix y Prime Video</h3>`;
   if (nf.queue.length) {
     const total = (nf.stats && nf.stats.total) || nf.queue.length;
     const done = total - nf.queue.length;
@@ -1404,26 +1465,26 @@ function nfGroupInner(msg) {
     if (nf.pending.length) extra.push(`${nfPlural(nf.pending.length, 'quedó', 'quedaron')} sin identificar`);
     if (extra.length) h += `<p>${cap(extra.join(' y '))}.</p>`;
   } else {
-    h += `<p>Importa el archivo de tu actividad de Netflix y todo lo que viste quedará en Vistos, con la fecha de la última vez que lo viste.</p>`;
+    h += `<p>Importa el historial de Netflix o de Prime Video y todo lo que viste quedará en Vistos, con la fecha de la última vez que lo viste.</p>`;
   }
   if (msg) h += `<p class="msg err" role="status">${esc(msg)}</p>`;
   if (!state.key) h += `<p class="msg err">Primero conecta TMDB, más arriba.</p>`;
   h += `<div class="btn-row">`;
   if (nf.pending.length) h += `<button class="btn soft small" type="button" data-act="nfpending">${SVG(IC.search)}Revisar ${nf.pending.length} sin identificar</button>`;
-  h += `<label class="btn ${st ? 'gray' : 'tint'} small file-btn">${SVG(IC.inbox)}${st ? 'Importar otro archivo' : 'Importar archivo de Netflix'}<input type="file" id="nfFile" accept=".csv,text/csv,text/comma-separated-values,text/plain"></label></div>`;
-  h += `<details class="how"${st ? '' : ' open'}><summary>¿Cómo descargo el archivo?</summary><ol>
-    <li>En Safari, entra a <a href="https://www.netflix.com/viewingactivity" target="_blank" rel="noopener">netflix.com/viewingactivity</a> con tu perfil.</li>
-    <li>Baja hasta el final y toca <b>Descargar todo</b>. Queda en Archivos → Descargas como NetflixViewingHistory.csv.</li>
+  h += `<label class="btn ${st ? 'gray' : 'tint'} small file-btn">${SVG(IC.inbox)}${st ? 'Importar otro archivo' : 'Importar historial'}<input type="file" id="nfFile" accept=".csv,.txt,text/csv,text/comma-separated-values,text/plain"></label></div>`;
+  h += `<details class="how"${st ? '' : ' open'}><summary>¿Cómo consigo el archivo?</summary><ol>
+    <li><b>Netflix:</b> en Safari, entra a <a href="https://www.netflix.com/viewingactivity" target="_blank" rel="noopener">netflix.com/viewingactivity</a> con tu perfil, baja hasta el final y toca <b>Descargar todo</b>. Queda en Archivos → Descargas como NetflixViewingHistory.csv.</li>
+    <li><b>Prime Video:</b> en el navegador, abre Configuración → Historial de visualización en <a href="https://www.primevideo.com" target="_blank" rel="noopener">primevideo.com</a>, baja hasta el final, copia todo el texto de la página y guárdalo como archivo .txt.</li>
     <li>Vuelve aquí, toca Importar y elige ese archivo.</li></ol></details>`;
   return h;
 }
 function nfSheetHTML(msg) {
   const nf = nfState();
-  let h = `<h2 class="s-title">Importar desde Netflix</h2><section class="s-group" id="nfGroup">${nfGroupInner(msg)}</section>`;
+  let h = `<h2 class="s-title">Importar historial</h2><section class="s-group" id="nfGroup">${nfGroupInner(msg)}</section>`;
   if (nf.stats && nf.stats.finishedAt && !nf.queue.length) h += `<button class="btn tint block" type="button" data-tab="seen">${SVG(IC.checkCircle)}Ver Vistos</button>`;
   return h;
 }
-function nfOpen() { current = null; sheetMode = 'nf'; openSheet(nfSheetHTML(), 'Importar desde Netflix'); }
+function nfOpen() { current = null; sheetMode = 'nf'; openSheet(nfSheetHTML(), 'Importar historial'); }
 function nfPaint() {
   if (!root.classList.contains('open')) return;
   if (sheetMode === 'nf') { $('#sheetBody').innerHTML = nfSheetHTML(); return; }
@@ -1434,11 +1495,11 @@ function nfPaint() {
 async function nfReadFile(file) {
   let parsed;
   try { parsed = nfParse(nfDecode(new Uint8Array(await file.arrayBuffer()))); }
-  catch (e) { nfShowError('Ese archivo no parece ser el historial de Netflix. Usa el CSV que se descarga desde Actividad de visualización.'); return; }
+  catch (e) { nfShowError('Ese archivo no parece un historial de Netflix ni de Prime Video. Usa el CSV de Netflix o el texto copiado del historial de Prime Video.'); return; }
   if (!parsed.plays.length) { nfShowError('El archivo no tiene reproducciones.'); return; }
   nfDraft = { parsed, profile: parsed.profiles.length > 1 ? null : '*', movies: true };
   current = null; sheetMode = 'nfdraft';
-  openSheet(nfDraftHTML(), 'Importar desde Netflix');
+  openSheet(nfDraftHTML(), 'Importar historial');
   $('#sheetBody').scrollTop = 0;
 }
 function nfShowError(msg) {
@@ -1452,7 +1513,7 @@ function nfDraftGroups() {
 }
 function nfDraftHTML() {
   const { parsed, profile, movies } = nfDraft;
-  let h = `<h2 class="s-title">Importar desde Netflix</h2>`;
+  let h = `<h2 class="s-title">Importar historial</h2>`;
   if (parsed.profiles.length > 1) {
     h += `<section class="s-group"><h3>¿Cuál es tu perfil?</h3><p>El archivo trae la actividad de varios perfiles de la cuenta.</p>
       <div class="pv-list">${parsed.profiles.map(p => `<button class="chip plain" type="button" data-nfprof="${esc(p.name)}" aria-pressed="${profile === p.name}">${esc(p.name)} <span class="n">${p.count.toLocaleString('es-CL')}</span></button>`).join('')}
@@ -1467,7 +1528,7 @@ function nfDraftHTML() {
   const n = tv.length + (movies ? mv.length : 0);
   h += `<section class="s-group">
     <div class="nf-sum"><div><b>${tv.length.toLocaleString('es-CL')}</b><span>${tv.length === 1 ? 'serie' : 'series'}</span></div><div><b>${mv.length.toLocaleString('es-CL')}</b><span>${mv.length === 1 ? 'película' : 'películas'}</span></div></div>
-    <p>${nfPlural(plays, 'reproducción', 'reproducciones')}${firsts.length ? `, desde ${esc(nfMonth(firsts[0]))} hasta ${esc(nfMonth(lasts[lasts.length - 1]))}` : ''}. Cada título quedará en Vistos con la fecha de la última vez que lo viste.</p>
+    <p>${parsed.format === 'prime' || groups.every(g => g.src === 'Prime Video') ? nfPlural(plays, 'entrada', 'entradas') + ' del historial de Prime Video' : nfPlural(plays, 'reproducción', 'reproducciones') + (groups.every(g => g.src === 'Netflix') ? ' en Netflix' : '')}${firsts.length ? `, desde ${esc(nfMonth(firsts[0]))} hasta ${esc(nfMonth(lasts[lasts.length - 1]))}` : ''}. Cada título quedará en Vistos con la fecha de la última vez que lo viste.</p>
     ${mv.length ? `<label class="switch-row" for="nfMovies"><span>Incluir películas</span><input type="checkbox" id="nfMovies" role="switch" ${movies ? 'checked' : ''}><i aria-hidden="true"></i></label>` : ''}
   </section>`;
   const recent = groups.filter(g => movies || g.kind === 'tv').slice(0, 6);
@@ -1532,6 +1593,8 @@ async function nfFindOne(e, tvFallback = true) {
   const q = e.name, plain = nfPlain(q);
   const tries = e.kind === 'tv' ? [['/search/tv', q], ['/search/multi', q]] : [['/search/movie', q], ['/search/multi', q]];
   if (plain && plain !== q) tries.push([e.kind === 'tv' ? '/search/tv' : '/search/multi', plain]);
+  const inner = (/\(([^)]{3,})\)/.exec(q) || [])[1]; // "Perros de la Calle (Reservoir Dogs)": prueba también el título original
+  if (inner) tries.push([e.kind === 'tv' ? '/search/tv' : '/search/movie', inner.trim()]);
   if (e.kind === 'movie' && tvFallback) { // episodio suelto de una serie: "Mad Men: Hay humo en tus ojos"
     const seg = q.split(': ');
     for (let L = seg.length - 1; L >= 1; L--) tries.push(['/search/tv', seg.slice(0, L).join(': ')]);
@@ -1545,7 +1608,7 @@ async function nfFindOne(e, tvFallback = true) {
 // Devuelve pares [entrada, resultado]: un grupo sin "Temporada" que no resulta ser serie se separa en películas
 async function nfResolve(e) {
   if (!e.name) return [[e, null]];
-  if (!e.weak) return [[e, await nfFindOne(e)]];
+  if (!e.weak) return [[e, await nfFindOne(e, !e.explicit)]]; // Prime Video ya dice si es película
   for (const q of [e.name, ...(e.alts || [])]) {
     const hit = nfBest(await nfSearchList('/search/tv', q), q, 60);
     if (hit) return [[e, hit]];
@@ -1565,18 +1628,18 @@ async function nfResolve(e) {
 function nfApply(e, r, run) {
   const nf = nfState(), st = nf.stats || (nf.stats = { total: 0, added: 0, merged: 0, unmatched: 0, run });
   if (!r) {
-    nf.pending.push({ name: e.name, kind: e.kind, first: e.first, last: e.last, plays: e.plays, eps: e.eps });
+    nf.pending.push({ name: e.name, kind: e.kind, first: e.first, last: e.last, plays: e.plays, eps: e.eps, src: e.src || 'Netflix', explicit: !!e.explicit });
     st.unmatched++; return;
   }
   const k = keyOf(r);
-  const eps = r.type === 'tv' ? Math.max(1, e.kind === 'tv' ? e.eps : 1) : 0;
+  const eps = r.type !== 'tv' || e.explicit ? 0 : Math.max(1, e.kind === 'tv' ? e.eps : 1); // Prime Video no dice cuántos episodios
   const it = state.items[k];
   if (it) {
     const n = it.nf;
     if (n && n.run === run) { // otro nombre de Netflix para el mismo título, en esta misma importación
-      n.eps += eps; n.plays += e.plays;
+      n.eps += eps; n.plays += e.plays; n.src = nfSrcJoin(n.src, e.src);
     } else {
-      it.nf = { eps: Math.max(eps, n ? n.eps : 0), plays: Math.max(e.plays, n ? n.plays : 0), first: nfMin(n && n.first, e.first), run };
+      it.nf = { eps: Math.max(eps, n ? n.eps : 0), plays: Math.max(e.plays, n ? n.plays : 0), first: nfMin(n && n.first, e.first), run, src: nfSrcJoin(n && (n.src || 'Netflix'), e.src || 'Netflix') };
       if (!(it.src === 'netflix' && it.nfRun === run)) st.merged++;
     }
     it.nf.first = nfMin(it.nf.first, e.first);
@@ -1586,7 +1649,7 @@ function nfApply(e, r, run) {
   state.items[k] = {
     id: r.id, type: r.type, title: r.title, year: r.year, poster: r.poster, status: 'seen',
     seenAt: nfDay(e.last), addedAt: nfDateMs(e.last), prov: null, provAt: 0,
-    nf: { eps, plays: e.plays, first: e.first, run }, src: 'netflix', nfRun: run,
+    nf: { eps, plays: e.plays, first: e.first, run, src: e.src || 'Netflix' }, src: 'netflix', nfRun: run,
   };
   st.added++;
 }
@@ -1626,8 +1689,8 @@ function nfPendingOpen() { current = null; sheetMode = 'nfpending'; openSheet(nf
 function nfPendingHTML() {
   const p = nfState().pending;
   let h = `<h2 class="s-title">Sin identificar</h2>`;
-  if (!p.length) return h + emptyHTML(IC.checkCircle, 'No queda nada pendiente', 'Todos los títulos de tu historial de Netflix ya están en tus listas.');
-  h += `<p class="how">No encontré estos títulos en TMDB con el nombre que usa Netflix. Toca la lupa para elegir el correcto o descártalos.</p>`;
+  if (!p.length) return h + emptyHTML(IC.checkCircle, 'No queda nada pendiente', 'Todos los títulos de tu historial ya están en tus listas.');
+  h += `<p class="how">No encontré estos títulos en TMDB con el nombre que usa la plataforma. Toca la lupa para elegir el correcto o descártalos.</p>`;
   h += `<div class="list">${p.map((e, i) => `<div class="item"><div class="item-main static">${posterHTML({ title: nfLabel(e) }, 'sm')}<div class="info"><div class="title">${esc(nfLabel(e))}</div><div class="sub"><span>${esc(nfLine(e))}</span></div></div></div>
     <button class="item-act" type="button" data-nffind="${i}" aria-label="Buscar ${esc(nfLabel(e))}">${SVG(IC.search)}</button>
     <button class="item-act gray" type="button" data-nfdrop="${i}" aria-label="Descartar ${esc(nfLabel(e))}">${SVG('<path d="M6 6l12 12M18 6 6 18"/>')}</button></div>`).join('')}</div>`;
